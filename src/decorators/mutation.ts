@@ -1,22 +1,20 @@
 import * as graphql from 'graphql';
-import {
-  addFieldToObjectTypeMetadata,
-} from '../metadata';
+import { addMutationField } from '../metadata';
 import { WrappedType } from '../wrappedType';
 
-interface FieldOpts {
+interface MutationOpts {
   name?: string;
   args?: { [argument: string]: graphql.GraphQLType | WrappedType | Object };
 }
 
-export function Field(
+export function Mutation(
   type: graphql.GraphQLType | WrappedType | Object,
-  opts?: FieldOpts
+  opts?: MutationOpts
 ): Function {
-  return function(target: any, propertyName: string, descriptor: any): void {
-    const fieldName = opts && opts.name ? opts.name : propertyName;
+  return function(target: any, methodName: string, descriptor: any): void {
+    const fieldName = opts && opts.name ? opts.name : methodName;
 
-    addFieldToObjectTypeMetadata(
+    addMutationField(
       target.constructor,
       fieldName,
       type,

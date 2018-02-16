@@ -1,22 +1,20 @@
 import * as graphql from 'graphql';
-import {
-  addFieldToObjectTypeMetadata,
-} from '../metadata';
+import { addQueryField } from '../metadata';
 import { WrappedType } from '../wrappedType';
 
-interface FieldOpts {
+interface QueryOpts {
   name?: string;
   args?: { [argument: string]: graphql.GraphQLType | WrappedType | Object };
 }
 
-export function Field(
+export function Query(
   type: graphql.GraphQLType | WrappedType | Object,
-  opts?: FieldOpts
+  opts?: QueryOpts
 ): Function {
-  return function(target: any, propertyName: string, descriptor: any): void {
-    const fieldName = opts && opts.name ? opts.name : propertyName;
+  return function(target: any, methodName: string, descriptor: any): void {
+    const fieldName = opts && opts.name ? opts.name : methodName;
 
-    addFieldToObjectTypeMetadata(
+    addQueryField(
       target.constructor,
       fieldName,
       type,

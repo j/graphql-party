@@ -1,7 +1,7 @@
 import 'mocha';
 import { assert } from 'chai';
 import * as graphql from 'graphql';
-import { ObjectType, Field } from '../src/decorators';
+import { ObjectType, InputType, Field } from '../src/decorators';
 import * as Types from '../src/types';
 import { buildObjectType } from '../src/buildObjectType';
 import dedent from 'graphql/jsutils/dedent';
