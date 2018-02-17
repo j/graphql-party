@@ -96,22 +96,22 @@ export class AllTheThings {
   // Self queries
 
   @Query(AllTheThings)
-  selfQuery(): Number {
+  selfQuery(): AllTheThings {
     return new AllTheThings();
   }
 
   @Query(Types.NonNullable(AllTheThings))
-  selfQueryNonNullable(): Number {
+  selfQueryNonNullable(): AllTheThings {
     return new AllTheThings();
   }
 
   @Query(Types.List(AllTheThings))
-  selfQueryList(): Number[] {
+  selfQueryList(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
   @Query(Types.NonNullable(Types.List(AllTheThings)))
-  selfQueryListNonNullable(): Number[] {
+  selfQueryListNonNullable(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
@@ -186,22 +186,22 @@ export class AllTheThings {
   // Self mutations
 
   @Mutation(AllTheThings)
-  selfMutation(): Number {
+  selfMutation(): AllTheThings {
     return new AllTheThings();
   }
 
   @Mutation(Types.NonNullable(AllTheThings))
-  selfMutationNonNullable(): Number {
+  selfMutationNonNullable(): AllTheThings {
     return new AllTheThings();
   }
 
   @Mutation(Types.List(AllTheThings))
-  selfMutationList(): Number[] {
+  selfMutationList(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
   @Mutation(Types.NonNullable(Types.List(AllTheThings)))
-  selfMutationListNonNullable(): Number[] {
+  selfMutationListNonNullable(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
