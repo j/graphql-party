@@ -32,7 +32,7 @@ describe('resolveObjectType()', () => {
       new (type: graphql.GraphQLType): graphql.GraphQLType;
     }) => {
       tests.forEach(({ type, asType, isFromMetadata }) => {
-        it(`Resolves WrappedType(${TypeConstructor.name}, ${type.name})${
+        it(`resolves WrappedType(${TypeConstructor.name}, ${type.name})${
           isFromMetadata ? ' from metadata' : ''
         }`, () => {
           const wrappedType = new WrappedType(TypeConstructor, type);
@@ -59,7 +59,7 @@ describe('resolveObjectType()', () => {
   ];
 
   invalidTests.forEach(({ type, name }) => {
-    it(`Errors when given an invalid type "${name}"`, () => {
+    it(`errors when given an invalid type "${name}"`, () => {
       assert.throw(
         () =>
           resolveObjectType(

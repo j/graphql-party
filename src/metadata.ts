@@ -9,21 +9,23 @@ import {
 } from 'graphql';
 import { resolveObjectType, WrappedType } from './wrappedType';
 
-export const OBJECT_TYPE_KEY = Symbol('ObjectType');
-export const OBJECT_QUERY_TYPE_KEY = Symbol('ObjectQueryType');
-export const OBJECT_MUTATION_TYPE_KEY = Symbol('ObjectMutationType');
+export const OBJECT_TYPE_KEY = Symbol('@ObjectType');
+export const OBJECT_QUERY_TYPE_KEY = Symbol('@Query');
+export const OBJECT_MUTATION_TYPE_KEY = Symbol('@Mutation');
 
 export interface ObjectTypeFieldOpts {
   args?: { [argument: string]: GraphQLType | WrappedType | Object };
 }
 
+export interface GraphQLObjectOrInputTypeCtor {
+  new (
+    config: GraphQLObjectTypeConfig<any, any> | GraphQLInputObjectTypeConfig
+  ): GraphQLObjectType | GraphQLInputObjectType;
+}
+
 export interface ObjectTypeMetadata {
   name: string;
-  Type: {
-    new (
-      config: GraphQLObjectTypeConfig<any, any> | GraphQLInputObjectTypeConfig
-    ): GraphQLObjectType | GraphQLInputObjectType;
-  };
+  Type: GraphQLObjectOrInputTypeCtor;
   objectType: GraphQLObjectType | GraphQLInputObjectType;
   fields: { [fieldName: string]: ObjectTypeField };
 }

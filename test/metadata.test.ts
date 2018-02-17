@@ -4,7 +4,7 @@ import * as graphql from 'graphql';
 import * as metadata from '../src/metadata';
 
 describe('addFieldToObjectTypeMetadata()', () => {
-  it('Errors when there is a duplicate field', () => {
+  it('errors when there is a duplicate field', () => {
     class Animal {
       public name: string;
     }

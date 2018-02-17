@@ -1,7 +1,6 @@
 import { GraphQLServer } from 'graphql-yoga';
 import * as graphql from 'graphql';
-import { ObjectType, InputType, Query, Mutation, Field, Types, buildObjectType } from '../../src';
-import {buildMutationObjectType, buildQueryObjectType} from "../../src/buildObjectType";
+import { ObjectType, InputType, Query, Mutation, Field, Types, buildObjectType, typeFromClass, typeFromClassWithMutations, typeFromClassWithQueries } from '../../src';
 
 let id = 1;
 const users = [];
@@ -116,11 +115,11 @@ users.push(john);
 users.push(betty);
 users.push(alfred);
 
-[UserInput, User, Address].map(buildObjectType);
+[UserInput, User, Address].map(typeFromClass);
 
 const schema = new graphql.GraphQLSchema({
-  query: buildQueryObjectType([UsersRepository, AddressRepository]),
-  mutation: buildMutationObjectType([UsersRepository, AddressRepository])
+  query: typeFromClassWithQueries([UsersRepository, AddressRepository]),
+  mutation: typeFromClassWithMutations([UsersRepository, AddressRepository])
 });
 
 console.log(graphql.printSchema(schema));

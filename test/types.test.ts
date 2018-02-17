@@ -3,7 +3,7 @@ import { assert } from 'chai';
 import * as graphql from 'graphql';
 import * as types from '../src/types';
 
-describe('Types (default GraphQL Scalar)', () => {
+describe('default GraphQL Scalar types', () => {
   const tests = [
     { name: 'Int', expected: graphql.GraphQLInt },
     { name: 'Float', expected: graphql.GraphQLFloat },
@@ -13,7 +13,7 @@ describe('Types (default GraphQL Scalar)', () => {
   ];
 
   tests.forEach(({ name, expected }) => {
-    it(`Maps "${name}" to "GraphQL${name}"`, () => {
+    it(`maps "${name}" to "GraphQL${name}"`, () => {
       const type = types[name];
 
       assert.equal(type, expected);
@@ -22,7 +22,7 @@ describe('Types (default GraphQL Scalar)', () => {
   });
 });
 
-describe('Types (List)', () => {
+describe('Types.List()', () => {
   const tests = [
     { name: 'Int', expected: graphql.GraphQLInt },
     { name: 'Float', expected: graphql.GraphQLFloat },
@@ -32,7 +32,7 @@ describe('Types (List)', () => {
   ];
 
   tests.forEach(({ name, expected }) => {
-    it(`Creates list of "GraphQL${name}"`, () => {
+    it(`creates list of "GraphQL${name}"`, () => {
       const type = types.List(types[name]);
 
       assert.instanceOf(type, graphql.GraphQLList);
@@ -42,7 +42,7 @@ describe('Types (List)', () => {
   });
 });
 
-describe('Types (NonNullable)', () => {
+describe('Types.NonNullable()', () => {
   const tests = [
     { name: 'Int', expected: graphql.GraphQLInt },
     { name: 'Float', expected: graphql.GraphQLFloat },
@@ -52,7 +52,7 @@ describe('Types (NonNullable)', () => {
   ];
 
   tests.forEach(({ name, expected }) => {
-    it(`Creates non-nullable "${name}" of "GraphQL${name}"`, () => {
+    it(`creates non-nullable "${name}" of "GraphQL${name}"`, () => {
       const type = types.NonNullable(types[name]) as graphql.GraphQLNonNull<
         graphql.GraphQLNullableType
       >;
@@ -64,7 +64,7 @@ describe('Types (NonNullable)', () => {
   });
 
   tests.forEach(({ name, expected }) => {
-    it(`Creates non-nullable lists of "GraphQL${name}"`, () => {
+    it(`creates non-nullable lists of "GraphQL${name}"`, () => {
       const type = types.NonNullable(
         types.List(types[name])
       ) as graphql.GraphQLNonNull<graphql.GraphQLList<any>>;
@@ -77,7 +77,7 @@ describe('Types (NonNullable)', () => {
   });
 
   tests.forEach(({ name, expected }) => {
-    it(`Creates lists of non-nullable "GraphQL${name}"`, () => {
+    it(`creates lists of non-nullable "GraphQL${name}"`, () => {
       const type = types.List(
         types.NonNullable(types[name])
       ) as graphql.GraphQLNonNull<graphql.GraphQLList<any>>;
