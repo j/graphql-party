@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { getObjectTypeMetadata } from './utilities/metadata';
+import { getObjectTypeMetadata } from './metadata';
 
 type TypeConstructorReturnType = graphql.GraphQLType;
 

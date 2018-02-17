@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { WrappedType } from './wrappedType';
+import { WrappedType } from './utilities/wrappedType';
 
 export const Int = graphql.GraphQLInt;
 export const Float = graphql.GraphQLFloat;

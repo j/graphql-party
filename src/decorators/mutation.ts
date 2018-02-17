@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import { addMutationField } from '../utilities/metadata';
-import { WrappedType } from '../wrappedType';
+import { WrappedType } from '../utilities/wrappedType';
 
 interface MutationOpts {
   name?: string;

@@ -1,6 +1,6 @@
 import * as graphql from 'graphql';
 import { addQueryField } from '../utilities/metadata';
-import { WrappedType } from '../wrappedType';
+import { WrappedType } from '../utilities/wrappedType';
 
 interface QueryOpts {
   name?: string;
