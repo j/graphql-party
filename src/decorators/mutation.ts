@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { addMutationField } from '../metadata';
+import { addMutationField } from '../utilities/metadata';
 import { WrappedType } from '../wrappedType';
 
 interface MutationOpts {

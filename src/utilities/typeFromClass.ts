@@ -10,7 +10,7 @@ import {
   ObjectTypeMetadata,
   GraphQLObjectOrInputTypeCtor,
   setObjectTypeMetadata,
-} from '../metadata';
+} from './metadata';
 
 function getFieldsFromMeta(meta: ObjectTypeMetadata) {
   const fields = {};

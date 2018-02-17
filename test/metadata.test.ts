@@ -1,7 +1,7 @@
 import 'mocha';
 import { assert } from 'chai';
 import * as graphql from 'graphql';
-import * as metadata from '../src/metadata';
+import * as metadata from '../src/utilities/metadata';
 
 describe('addFieldToObjectTypeMetadata()', () => {
   it('errors when there is a duplicate field', () => {

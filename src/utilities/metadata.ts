@@ -7,7 +7,7 @@ import {
   GraphQLObjectTypeConfig,
   GraphQLInputObjectTypeConfig,
 } from 'graphql';
-import { resolveObjectType, WrappedType } from './wrappedType';
+import { resolveObjectType, WrappedType } from '../wrappedType';
 
 export const OBJECT_TYPE_KEY = Symbol('@ObjectType');
 export const OBJECT_QUERY_TYPE_KEY = Symbol('@Query');

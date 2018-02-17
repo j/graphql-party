@@ -2,7 +2,7 @@ import 'mocha';
 import { assert } from 'chai';
 import * as graphql from 'graphql';
 import { WrappedType, resolveObjectType } from '../src/wrappedType';
-import { setObjectTypeMetadata } from '../src/metadata';
+import { setObjectTypeMetadata } from '../src/utilities/metadata';
 
 describe('resolveObjectType()', () => {
   const wrappedTypeConstructor = [graphql.GraphQLList, graphql.GraphQLNonNull];
