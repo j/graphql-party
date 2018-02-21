@@ -14,15 +14,9 @@ export function Mutation(
   return function(target: any, methodName: string, descriptor: any): void {
     const fieldName = opts && opts.name ? opts.name : methodName;
 
-    addMutationField(
-      target.constructor,
-      fieldName,
-      type,
-      {
-        methodName,
-        args: opts && opts.args ? opts.args : undefined,
-      },
-      descriptor
-    );
+    addMutationField(target.constructor, fieldName, type, {
+      methodName,
+      args: opts && opts.args ? opts.args : undefined,
+    });
   };
 }

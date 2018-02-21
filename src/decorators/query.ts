@@ -14,15 +14,9 @@ export function Query(
   return function(target: any, methodName: string, descriptor: any): void {
     const fieldName = opts && opts.name ? opts.name : methodName;
 
-    addQueryField(
-      target.constructor,
-      fieldName,
-      type,
-      {
-        methodName,
-        args: opts && opts.args ? opts.args : undefined,
-      },
-      descriptor
-    );
+    addQueryField(target.constructor, fieldName, type, {
+      methodName,
+      args: opts && opts.args ? opts.args : undefined,
+    });
   };
 }

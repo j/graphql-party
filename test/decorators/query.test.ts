@@ -52,8 +52,9 @@ describe('@Query()', () => {
 
       @Query(Types.String)
       async soundsLike(): Promise<string> {
-        return new Promise(resolve => {
+        return new Promise<string>(resolve => {
           this.calledCount++;
+
           resolve('moo!');
         });
       }
@@ -83,9 +84,7 @@ describe('@Query()', () => {
   it('calls handler with name', async () => {
     let calledCount = 0;
     class CowRepository {
-      constructor(color: string) {
-        this.color = color;
-      }
+      constructor(public color: string) {}
 
       @Query(Types.String, { name: 'color' })
       getColor() {
@@ -118,15 +117,15 @@ describe('@Query()', () => {
   it('calls async handler with name', async () => {
     let calledCount = 0;
     class CowRepository {
-      constructor(color: string) {
-        this.color = color;
-      }
+      constructor(public color: string) {}
 
       @Query(Types.String, { name: 'color' })
-      async getColor() {
-        calledCount++;
+      async getColor(): Promise<string> {
+        return new Promise<string>(resolve => {
+          calledCount++;
 
-        return this.color;
+          resolve(this.color);
+        });
       }
     }
 

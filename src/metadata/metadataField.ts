@@ -5,15 +5,16 @@ import { getObjectTypeMetadata } from './index';
 
 export interface MetadataFieldOpts {
   args?: { [argument: string]: GraphQLType | WrappedType | Object };
-  methodName: string;
+  resolve?: Function;
+  methodName?: string;
+  propertyName?: string;
 }
 
 export class MetadataField {
   constructor(
     private fieldName: string,
     private type: GraphQLType | WrappedType | Object,
-    private opts?: MetadataFieldOpts,
-    private descriptor?: any
+    private opts?: MetadataFieldOpts
   ) {}
 
   getFieldName(): string {
@@ -26,10 +27,6 @@ export class MetadataField {
 
   getOpts(): MetadataFieldOpts {
     return this.opts;
-  }
-
-  getDescriptor(): any {
-    return this.descriptor;
   }
 
   computeArgs(): { [argument: string]: any } | null {

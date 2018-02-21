@@ -19,16 +19,14 @@ export interface GraphQLObjectOrInputTypeCtor {
 }
 
 function getResolverForField(field: MetadataField): Function | null {
-  const descriptor = field.getDescriptor();
+  const opts = field.getOpts();
 
-  if (!descriptor) {
+  if (!opts || !opts.resolve) {
     return null;
   }
 
   return function(): any {
-    const resolveArgs = Object.values(arguments);
-
-    return descriptor.value.apply(resolveArgs.shift(), resolveArgs);
+    return opts.resolve.apply(null, Object.values(arguments));
   };
 }
 

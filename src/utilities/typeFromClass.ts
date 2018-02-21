@@ -66,7 +66,7 @@ export function typeFromInputTypeClass(
 function buildType(
   Type: GraphQLObjectOrInputTypeCtor,
   name: string,
-  getMetadataFn: () => Metadata,
+  getMetadataFn: (Class: any) => Metadata,
   classesWithMetadata: any[]
 ): GraphQLObjectType | GraphQLInputObjectType | null {
   let hasFields = false;

@@ -86,9 +86,7 @@ describe('@Mutation()', () => {
   it('calls handler with name', async () => {
     let calledCount = 0;
     class CowRepository {
-      constructor(color: string) {
-        this.color = color;
-      }
+      constructor(public color: string) {}
 
       @Mutation(Types.String, { name: 'color' })
       getColor() {
@@ -123,9 +121,7 @@ describe('@Mutation()', () => {
   it('calls async handler with name', async () => {
     let calledCount = 0;
     class CowRepository {
-      constructor(color: string) {
-        this.color = color;
-      }
+      constructor(public color: string) {}
 
       @Mutation(Types.String, { name: 'color' })
       async setColor() {

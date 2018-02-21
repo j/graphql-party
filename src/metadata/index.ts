@@ -16,8 +16,7 @@ function createAddFieldFn(key: Symbol) {
     target,
     fieldName: string,
     type: GraphQLType | WrappedType | Object,
-    opts?: MetadataFieldOpts,
-    descriptor?: any
+    opts?: MetadataFieldOpts
   ) {
     const meta = Metadata.getOrCreateInstance(target, key);
 
@@ -25,7 +24,7 @@ function createAddFieldFn(key: Symbol) {
       throw new Error(`Duplicate field "${fieldName}".`);
     }
 
-    meta.addField(new MetadataField(fieldName, type, opts, descriptor));
+    meta.addField(new MetadataField(fieldName, type, opts));
   };
 }
 

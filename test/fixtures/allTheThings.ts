@@ -43,8 +43,13 @@ export class AllTheThings {
   @Field(Types.NonNullable(Types.List(Types.NonNullable(AllTheThings))))
   public selfTypeNonNullableListNonNullable: AllTheThings[];
 
+  @Field(AllTheThings, {
+    resolve: (allTheThings): AllTheThings => allTheThings.selfTypeList[0],
+  })
+  public firstSelfTypeList: AllTheThings;
+
   // AllTheThingsChild Types
-  @Field(AllTheThingsChild) public postField: AllTheThingsChild;
+  @Field(AllTheThingsChild) public childField: AllTheThingsChild;
 
   // Type with field name over-ride.
   @Field(Types.String, { name: 'new' })
@@ -246,7 +251,8 @@ export const expectedTypes = {
       selfTypeNonNullableList: [AllTheThings!]
       selfTypeListNonNullable: [AllTheThings]!
       selfTypeNonNullableListNonNullable: [AllTheThings!]!
-      postField: AllTheThingsChild
+      firstSelfTypeList: AllTheThings
+      childField: AllTheThingsChild
       new: String
     }`,
   AllTheThingsChild: dedent`

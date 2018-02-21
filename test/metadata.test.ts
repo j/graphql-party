@@ -227,7 +227,7 @@ describe('Metadata', () => {
 
     assert.equal(constructorCalledCount, 0);
 
-    const animalRepository1 = meta.getTargetInstance();
+    const animalRepository1 = <AnimalRepository>meta.getTargetInstance();
 
     assert.instanceOf(animalRepository1, AnimalRepository);
     assert.equal(animalRepository1.hello, 'world');
