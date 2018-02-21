@@ -50,7 +50,7 @@ export class UserInput {
 }
 
 export class UserQueries {
-  @Query(User, { args: { id: Types.Int }, description: 'Gets users.' })
+  @Query(User, { args: { id: Types.Int }, description: 'Gets a user.' })
   User(): User {
     const result = db[0];
 
@@ -84,7 +84,7 @@ export const expectedUserSchema = dedent`
   }
   
   type Query {
-    """Gets users."""
+    """Gets a user."""
     User(id: Int): User
   }
   
