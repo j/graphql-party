@@ -1,10 +1,10 @@
 import 'mocha';
 import { assert } from 'chai';
 import * as graphql from 'graphql';
-import { WrappedType, resolveObjectType } from '../src/utilities/wrappedType';
-import { setObjectTypeMetadata } from '../src/utilities/metadata';
+import { WrappedType, resolveWrappedType } from '../src/utilities/wrappedType';
+import { getOrCreateObjectTypeMetadata } from '../src/metadata';
 
-describe('resolveObjectType()', () => {
+describe('resolveWrappedType()', () => {
   const wrappedTypeConstructor = [graphql.GraphQLList, graphql.GraphQLNonNull];
 
   const userType = new graphql.GraphQLObjectType({
@@ -15,7 +15,9 @@ describe('resolveObjectType()', () => {
   });
 
   class User {}
-  setObjectTypeMetadata(User, { name: 'User', objectType: userType });
+  const meta = getOrCreateObjectTypeMetadata(User);
+  meta.setName('User');
+  meta.setObjectType(userType);
 
   const tests = [
     { type: graphql.GraphQLInt },
@@ -41,7 +43,7 @@ describe('resolveObjectType()', () => {
             : type) as graphql.GraphQLType);
 
           assert.equal(
-            resolveObjectType(wrappedType, 'foo').toString(),
+            resolveWrappedType(wrappedType, 'foo').toString(),
             expectedType.toString()
           );
         });
@@ -62,7 +64,7 @@ describe('resolveObjectType()', () => {
     it(`errors when given an invalid type "${name}"`, () => {
       assert.throw(
         () =>
-          resolveObjectType(
+          resolveWrappedType(
             new WrappedType(graphql.GraphQLList, type),
             'someField'
           ),

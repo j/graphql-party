@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { addQueryField } from '../utilities/metadata';
+import { addQueryField } from '../metadata';
 import { WrappedType } from '../utilities/wrappedType';
 
 interface QueryOpts {
@@ -19,6 +19,7 @@ export function Query(
       fieldName,
       type,
       {
+        methodName,
         args: opts && opts.args ? opts.args : undefined,
       },
       descriptor

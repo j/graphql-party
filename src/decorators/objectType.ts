@@ -1,7 +1,9 @@
-import { setObjectTypeMetadata } from '../utilities/metadata';
+import { getOrCreateObjectTypeMetadata } from '../metadata';
 
 export function ObjectType(name?: string): Function {
   return (target: Function) => {
-    setObjectTypeMetadata(target, { name });
+    const meta = getOrCreateObjectTypeMetadata(target);
+
+    meta.setName(name || target.name);
   };
 }

@@ -1,50 +1,16 @@
-import {
-  GraphQLObjectType,
-  GraphQLInputObjectType,
-  isInputType,
-} from 'graphql';
+import { GraphQLObjectType, GraphQLInputObjectType, isType } from 'graphql';
 import {
   getMutationObjectTypeMetadata,
   getObjectTypeMetadata,
   getQueryObjectTypeMetadata,
-  ObjectTypeMetadata,
+  Metadata,
   GraphQLObjectOrInputTypeCtor,
-  setObjectTypeMetadata,
-} from './metadata';
-
-function getFieldsFromMeta(meta: ObjectTypeMetadata) {
-  const fields = {};
-
-  Object.keys(meta.fields).forEach(fieldName => {
-    const { getArgs, getType, getResolver } = meta.fields[fieldName];
-
-    fields[fieldName] = {
-      type: getType(),
-      args: getArgs(),
-    };
-
-    const resolve = getResolver();
-
-    if (resolve) {
-      fields[fieldName].resolve = resolve;
-    }
-  });
-
-  return fields;
-}
+} from '../metadata';
 
 function createObjectOrInputType(
-  ClassWithTypeMetadata: any,
-  meta
+  meta: Metadata
 ): GraphQLObjectType | GraphQLInputObjectType {
-  const objectType = new meta.Type({
-    name: meta.name,
-    fields: () => getFieldsFromMeta(meta),
-  });
-
-  setObjectTypeMetadata(ClassWithTypeMetadata, { objectType });
-
-  return objectType;
+  return meta.createType(() => meta.computeFields());
 }
 
 /**
@@ -55,13 +21,13 @@ export function typeFromObjectTypeClass(
 ): GraphQLObjectType {
   const meta = getObjectTypeMetadata(ClassWithObjectTypeMetadata);
 
-  if (!meta || !meta.name) {
+  if (!meta || !meta.getName()) {
     throw new Error(
       `"${ClassWithObjectTypeMetadata.name}" is not a valid ObjectType.`
     );
   }
 
-  if (meta.Type !== GraphQLObjectType) {
+  if (meta.getType() !== GraphQLObjectType) {
     throw new Error(
       `"${
         ClassWithObjectTypeMetadata.name
@@ -69,10 +35,7 @@ export function typeFromObjectTypeClass(
     );
   }
 
-  return createObjectOrInputType(
-    ClassWithObjectTypeMetadata,
-    meta
-  ) as GraphQLObjectType;
+  return createObjectOrInputType(meta) as GraphQLObjectType;
 }
 
 /**
@@ -83,13 +46,13 @@ export function typeFromInputTypeClass(
 ): GraphQLInputObjectType {
   const meta = getObjectTypeMetadata(ClassWithInputTypeMetadata);
 
-  if (!meta || !meta.name) {
+  if (!meta || !meta.getName()) {
     throw new Error(
       `"${ClassWithInputTypeMetadata.name}" is not a valid ObjectType.`
     );
   }
 
-  if (meta.Type !== GraphQLInputObjectType) {
+  if (meta.getType() !== GraphQLInputObjectType) {
     throw new Error(
       `"${
         ClassWithInputTypeMetadata.name
@@ -97,30 +60,39 @@ export function typeFromInputTypeClass(
     );
   }
 
-  return createObjectOrInputType(
-    ClassWithInputTypeMetadata,
-    meta
-  ) as GraphQLInputObjectType;
+  return createObjectOrInputType(meta) as GraphQLInputObjectType;
 }
 
 function buildType(
   Type: GraphQLObjectOrInputTypeCtor,
   name: string,
-  getMetadataFn: Function,
+  getMetadataFn: () => Metadata,
   classesWithMetadata: any[]
 ): GraphQLObjectType | GraphQLInputObjectType | null {
   let hasFields = false;
   let fields = {};
 
-  classesWithMetadata.forEach(ClassWithMetadata => {
+  classesWithMetadata.forEach(ClassWithMetadataOrArray => {
+    let ClassWithMetadata = ClassWithMetadataOrArray;
+    let args = [];
+
+    if (Array.isArray(ClassWithMetadataOrArray)) {
+      ClassWithMetadata = ClassWithMetadataOrArray[0];
+      args = ClassWithMetadataOrArray[1];
+    }
+
     const meta = getMetadataFn(ClassWithMetadata);
 
     if (meta) {
+      if (args.length) {
+        meta.setTargetInstanceAgs(args);
+      }
+
       hasFields = true;
 
       fields = {
         ...fields,
-        ...getFieldsFromMeta(meta),
+        ...meta.computeFields(),
       };
     }
   });

@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { getObjectTypeMetadata } from './metadata';
+import { Metadata } from '../metadata';
 
 type TypeConstructorReturnType = graphql.GraphQLType;
 
@@ -17,12 +17,12 @@ function create(
   return new wrappedType.TypeConstructor(objectType);
 }
 
-export function resolveObjectType(
+export function resolveWrappedType(
   type: WrappedType,
   fieldName: string
 ): TypeConstructorReturnType {
   if (type.ofType instanceof WrappedType) {
-    return create(type, resolveObjectType(type.ofType, fieldName), fieldName);
+    return create(type, resolveWrappedType(type.ofType, fieldName), fieldName);
   }
 
   if (graphql.isType(type.ofType)) {
@@ -31,7 +31,7 @@ export function resolveObjectType(
 
   return create(
     type,
-    getObjectTypeMetadata(type.ofType, true).objectType,
+    Metadata.getOrCreateInstance(type.ofType).objectType,
     fieldName
   );
 }

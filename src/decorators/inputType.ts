@@ -1,8 +1,11 @@
 import { GraphQLInputObjectType } from 'graphql';
-import { setObjectTypeMetadata } from '../utilities/metadata';
+import { getOrCreateObjectTypeMetadata } from '../metadata';
 
 export function InputType(name?: string): Function {
   return (target: Function) => {
-    setObjectTypeMetadata(target, { name, Type: GraphQLInputObjectType });
+    const meta = getOrCreateObjectTypeMetadata(target);
+
+    meta.setName(name || target.name);
+    meta.setType(GraphQLInputObjectType);
   };
 }

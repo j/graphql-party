@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { addMutationField } from '../utilities/metadata';
+import { addMutationField } from '../metadata';
 import { WrappedType } from '../utilities/wrappedType';
 
 interface MutationOpts {
@@ -19,6 +19,7 @@ export function Mutation(
       fieldName,
       type,
       {
+        methodName,
         args: opts && opts.args ? opts.args : undefined,
       },
       descriptor

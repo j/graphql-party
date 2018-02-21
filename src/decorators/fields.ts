@@ -1,5 +1,5 @@
 import * as graphql from 'graphql';
-import { addFieldToObjectTypeMetadata } from '../utilities/metadata';
+import { addFieldToObjectTypeMetadata } from '../metadata';
 import { WrappedType } from '../utilities/wrappedType';
 
 interface FieldOpts {
