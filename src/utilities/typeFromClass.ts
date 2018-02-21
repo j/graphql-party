@@ -1,11 +1,20 @@
-import { GraphQLObjectType, GraphQLInputObjectType, isType } from 'graphql';
+import {
+  GraphQLObjectType,
+  GraphQLInputObjectType,
+  isType,
+  GraphQLSchema,
+} from 'graphql';
 import {
   getMutationObjectTypeMetadata,
   getObjectTypeMetadata,
   getQueryObjectTypeMetadata,
   Metadata,
   GraphQLObjectOrInputTypeCtor,
+  OBJECT_TYPE_KEY,
+  OBJECT_QUERY_TYPE_KEY,
+  OBJECT_MUTATION_TYPE_KEY,
 } from '../metadata';
+import { GraphQLDate, GraphQLTime, GraphQLDateTime } from 'graphql-iso-date';
 
 function createObjectOrInputType(
   meta: Metadata
@@ -68,7 +77,7 @@ function buildType(
   name: string,
   getMetadataFn: (Class: any) => Metadata,
   classesWithMetadata: any[]
-): GraphQLObjectType | GraphQLInputObjectType | null {
+): GraphQLObjectType | GraphQLInputObjectType | undefined {
   let hasFields = false;
   let fields = {};
 
@@ -98,7 +107,7 @@ function buildType(
   });
 
   if (!hasFields) {
-    return null;
+    return;
   }
 
   return new Type({ name, fields: fields });
@@ -110,13 +119,13 @@ function buildType(
  */
 export function typeFromClassWithQueries(
   classesWithObjectMetadata: any[]
-): GraphQLObjectType | null {
+): GraphQLObjectType | undefined {
   return buildType(
     GraphQLObjectType,
     'Query',
     getQueryObjectTypeMetadata,
     classesWithObjectMetadata
-  ) as GraphQLObjectType | null;
+  ) as GraphQLObjectType | undefined;
 }
 
 /**
@@ -125,11 +134,85 @@ export function typeFromClassWithQueries(
  */
 export function typeFromClassWithMutations(
   classesWithMutationMetadata: any[]
-): GraphQLObjectType | null {
+): GraphQLObjectType | undefined {
   return buildType(
     GraphQLObjectType,
     'Mutation',
     getMutationObjectTypeMetadata,
     classesWithMutationMetadata
-  ) as GraphQLObjectType | null;
+  ) as GraphQLObjectType | undefined;
+}
+
+export function assertValidTarget(target: any) {
+  const keys = Reflect.getOwnMetadataKeys(target);
+
+  const isObjectType = keys.includes(OBJECT_TYPE_KEY);
+  const isQuery = keys.includes(OBJECT_QUERY_TYPE_KEY);
+  const isMutation = keys.includes(OBJECT_MUTATION_TYPE_KEY);
+
+  // @Query and @Mutation within an @ObjectType must be static methods.
+  if (isObjectType && (isQuery || isMutation)) {
+    const objectMeta = getObjectTypeMetadata(target);
+    const queryMeta = getQueryObjectTypeMetadata(target);
+    const mutationMeta = getMutationObjectTypeMetadata(target);
+
+    const fields = Object.values({
+      ...(queryMeta ? queryMeta.getFields() : {}),
+      ...(mutationMeta ? mutationMeta.getFields() : {}),
+    });
+
+    const invalidFields = [];
+
+    fields.forEach(field => {
+      if (!field.isResolverStaticFunction()) {
+        invalidFields.push(field.getOpts().methodName);
+      }
+    });
+
+    if (invalidFields.length) {
+      throw new Error(
+        `Fields "${invalidFields.join(
+          '", "'
+        )}" must be static if they belong to an @ObjectType.`
+      );
+    }
+  }
+}
+
+export function buildSchema(
+  { classes }: { classes: any[] } = { classes: [] }
+): GraphQLSchema {
+  const queryObjects = [];
+  const mutationObjects = [];
+
+  classes.forEach(target => {
+    assertValidTarget(target);
+
+    const knownMetas = Reflect.getOwnMetadataKeys(target);
+
+    knownMetas.forEach(key => {
+      switch (key) {
+        case OBJECT_TYPE_KEY:
+          const meta = getObjectTypeMetadata(target);
+
+          if (meta.isInputType()) {
+            typeFromInputTypeClass(target);
+          } else {
+            typeFromObjectTypeClass(target);
+          }
+          break;
+        case OBJECT_QUERY_TYPE_KEY:
+          queryObjects.push(target);
+          break;
+        case OBJECT_MUTATION_TYPE_KEY:
+          mutationObjects.push(target);
+          break;
+      }
+    });
+  });
+
+  return new GraphQLSchema({
+    query: typeFromClassWithQueries(queryObjects),
+    mutation: typeFromClassWithMutations(mutationObjects),
+  });
 }

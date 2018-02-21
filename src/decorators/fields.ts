@@ -1,24 +1,32 @@
 import * as graphql from 'graphql';
 import { addFieldToObjectTypeMetadata } from '../metadata';
 import { WrappedType } from '../utilities/wrappedType';
+import { isStaticProperty } from '../utilities/isStatic';
 
 interface FieldOpts {
   name?: string;
   args?: { [argument: string]: graphql.GraphQLType | WrappedType | Object };
   resolve?: Function;
+  description?: string;
 }
 
 export function Field(
   type: graphql.GraphQLType | WrappedType | Object,
-  opts?: FieldOpts
+  opts: FieldOpts = {}
 ): Function {
   return function(target: any, propertyName: string): void {
-    const fieldName = opts && opts.name ? opts.name : propertyName;
+    const fieldName = opts.name || propertyName;
 
-    addFieldToObjectTypeMetadata(target.constructor, fieldName, type, {
+    if (isStaticProperty(target, propertyName)) {
+      throw new Error('Static properties are not supported for @Field.');
+    }
+
+    addFieldToObjectTypeMetadata(target, fieldName, type, {
       propertyName,
-      args: opts && opts.args ? opts.args : undefined,
-      resolve: opts && opts.resolve ? opts.resolve : undefined,
+      isStaticFunction: false,
+      args: opts.args,
+      resolve: opts.resolve,
+      description: opts.description,
     });
   };
 }

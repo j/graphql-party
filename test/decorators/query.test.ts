@@ -1,151 +1,72 @@
 import 'mocha';
 import { assert } from 'chai';
-import { Query, Types, typeFromClassWithQueries } from '../../src';
-import { getQueryObjectTypeMetadata } from '../../src/metadata';
-import { execQuery } from '../helpers';
+import { Query, Types } from '../../src';
+import { OBJECT_QUERY_TYPE_KEY } from '../../src/metadata/index';
+import { GraphQLObjectType } from 'graphql';
+import { Metadata } from '../../src/metadata/metadata';
+import { MetadataField } from '../../src/metadata/metadataField';
 
 describe('@Query()', () => {
-  it('calls handler', async () => {
-    class Cow {
-      public calledCount: any = 0;
+  const tests = [
+    { type: Types.String, name: undefined, args: undefined },
+    { type: Types.Int, name: 'findTitle', args: undefined },
+    { type: Types.Boolean, name: undefined, args: { article: Types.Int } },
+  ];
 
-      constructor() {
-        this.calledCount = 0;
+  tests.forEach(({ type, name, args }) => {
+    const description = [
+      `type is "${type}"`,
+      `name is ${name ? 'defined' : 'undefined'}`,
+      `args are ${name ? 'defined' : 'undefined'}`,
+    ];
+
+    it(`creates @Query when ${description.join(' and ')}`, () => {
+      class ArticleRepository {
+        @Query(type, { name, args })
+        static findTitleForArticle(): any {
+          return 'some title';
+        }
       }
 
-      @Query(Types.String)
-      soundsLike() {
-        this.calledCount++;
+      const fieldName = name || 'findTitleForArticle';
 
-        return 'moo!';
-      }
-    }
+      const metadata = Reflect.getMetadata(
+        OBJECT_QUERY_TYPE_KEY,
+        ArticleRepository
+      );
 
-    const queryType = typeFromClassWithQueries([Cow]);
-    const cow = <Cow>getQueryObjectTypeMetadata(Cow).getTargetInstance();
+      assert.instanceOf(metadata, Metadata);
+      assert.equal(metadata.getTarget(), ArticleRepository);
+      assert.equal(metadata.getKey(), OBJECT_QUERY_TYPE_KEY);
+      assert.equal(metadata.getType(), GraphQLObjectType);
+      assert.hasAllKeys(metadata.getFields(), [fieldName]);
+      assert.lengthOf(metadata.getTargetInstanceArgs(), 0);
 
-    const result = await execQuery(
-      queryType,
-      `
-      query {
-        soundsLike
-      }
-    `
-    );
+      // name is always undefined for Queries/Mutations
+      assert.isUndefined(metadata.getName());
+      assert.isUndefined(metadata.getObjectType());
 
-    assert.deepEqual(result, {
-      data: {
-        soundsLike: 'moo!',
-      },
+      const findField = metadata.getFields()[fieldName];
+
+      assert.instanceOf(findField, MetadataField);
+      assert.equal(findField.getFieldName(), fieldName);
+      assert.equal(findField.getType(), type);
+
+      const opts = findField.getOpts();
+      assert.deepEqual(opts.args, args);
+      assert.equal(opts.methodName, 'findTitleForArticle');
     });
-
-    assert.equal(cow.calledCount, 1);
   });
 
-  it('calls async handler', async () => {
-    class Cow {
-      public calledCount: any = 0;
-
-      constructor() {
-        this.calledCount = 0;
+  it('throws error when no type is given', () => {
+    assert.throws(() => {
+      class ArticleRepository {
+        // @ts-ignore
+        @Query()
+        findTitleForArticle(): any {
+          return 'some title';
+        }
       }
-
-      @Query(Types.String)
-      async soundsLike(): Promise<string> {
-        return new Promise<string>(resolve => {
-          this.calledCount++;
-
-          resolve('moo!');
-        });
-      }
-    }
-
-    const queryType = typeFromClassWithQueries([Cow]);
-    const cow = <Cow>getQueryObjectTypeMetadata(Cow).getTargetInstance();
-
-    const result = await execQuery(
-      queryType,
-      `
-      query {
-        soundsLike
-      }
-    `
-    );
-
-    assert.deepEqual(result, {
-      data: {
-        soundsLike: 'moo!',
-      },
-    });
-
-    assert.equal(cow.calledCount, 1);
-  });
-
-  it('calls handler with name', async () => {
-    let calledCount = 0;
-    class CowRepository {
-      constructor(public color: string) {}
-
-      @Query(Types.String, { name: 'color' })
-      getColor() {
-        calledCount++;
-
-        return this.color;
-      }
-    }
-
-    const queryType = typeFromClassWithQueries([[CowRepository, ['brown']]]);
-
-    const result = await execQuery(
-      queryType,
-      `
-      query {
-        color
-      }
-    `
-    );
-
-    assert.deepEqual(result, {
-      data: {
-        color: 'brown',
-      },
-    });
-
-    assert.equal(calledCount, 1);
-  });
-
-  it('calls async handler with name', async () => {
-    let calledCount = 0;
-    class CowRepository {
-      constructor(public color: string) {}
-
-      @Query(Types.String, { name: 'color' })
-      async getColor(): Promise<string> {
-        return new Promise<string>(resolve => {
-          calledCount++;
-
-          resolve(this.color);
-        });
-      }
-    }
-
-    const queryType = typeFromClassWithQueries([[CowRepository, ['brown']]]);
-
-    const result = await execQuery(
-      queryType,
-      `
-      query {
-        color
-      }
-    `
-    );
-
-    assert.deepEqual(result, {
-      data: {
-        color: 'brown',
-      },
-    });
-
-    assert.equal(calledCount, 1);
+    }, 'Query is missing a type.');
   });
 });

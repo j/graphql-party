@@ -1,13 +1,20 @@
 import 'reflect-metadata';
-import { isType, GraphQLType } from 'graphql';
+import {
+  isType,
+  GraphQLType,
+  GraphQLObjectType,
+  GraphQLInputObjectType,
+} from 'graphql';
 import { WrappedType, resolveWrappedType } from '../utilities/wrappedType';
 import { getObjectTypeMetadata } from './index';
 
 export interface MetadataFieldOpts {
   args?: { [argument: string]: GraphQLType | WrappedType | Object };
   resolve?: Function;
+  isStaticFunction?: boolean;
   methodName?: string;
   propertyName?: string;
+  description?: string;
 }
 
 export class MetadataField {
@@ -29,11 +36,21 @@ export class MetadataField {
     return this.opts;
   }
 
-  computeArgs(): { [argument: string]: any } | null {
+  getDescription(): string {
+    return this.opts && this.opts.description
+      ? this.opts.description
+      : undefined;
+  }
+
+  isResolverStaticFunction() {
+    return this.opts.isStaticFunction === true;
+  }
+
+  computeArgs(): { [argument: string]: any } | undefined {
     const opts = this.opts;
 
     if (!opts || !opts.args || !Object.keys(opts.args).length) {
-      return null;
+      return undefined;
     }
 
     let args = {};
@@ -45,7 +62,7 @@ export class MetadataField {
     return args;
   }
 
-  computeType(type, name) {
+  computeType(type, name): GraphQLType {
     if (isType(type)) {
       return type;
     }

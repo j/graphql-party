@@ -57,88 +57,88 @@ export class AllTheThings {
 
   // String queries
   @Query(Types.String)
-  stringQuery(): string {
+  static stringQuery(): string {
     return 'hi';
   }
 
   @Query(Types.NonNullable(Types.String))
-  stringQueryNonNullable(): string {
+  static stringQueryNonNullable(): string {
     return 'hi';
   }
 
   @Query(Types.List(Types.String))
-  stringQueryList(): string[] {
+  static stringQueryList(): string[] {
     return ['hi'];
   }
 
   @Query(Types.NonNullable(Types.List(Types.String)))
-  stringQueryListNonNullable(): string[] {
+  static stringQueryListNonNullable(): string[] {
     return ['hi'];
   }
 
   // Int queries
 
   @Query(Types.Int)
-  intQuery(): Number {
+  static intQuery(): Number {
     return 1337;
   }
 
   @Query(Types.NonNullable(Types.Int))
-  intQueryNonNullable(): Number {
+  static intQueryNonNullable(): Number {
     return 1337;
   }
 
   @Query(Types.List(Types.Int))
-  intQueryList(): Number[] {
+  static intQueryList(): Number[] {
     return [1337];
   }
 
   @Query(Types.NonNullable(Types.List(Types.Int)))
-  intQueryListNonNullable(): Number[] {
+  static intQueryListNonNullable(): Number[] {
     return [1337];
   }
 
   // Self queries
 
   @Query(AllTheThings)
-  selfQuery(): AllTheThings {
+  static selfQuery(): AllTheThings {
     return new AllTheThings();
   }
 
   @Query(Types.NonNullable(AllTheThings))
-  selfQueryNonNullable(): AllTheThings {
+  static selfQueryNonNullable(): AllTheThings {
     return new AllTheThings();
   }
 
   @Query(Types.List(AllTheThings))
-  selfQueryList(): AllTheThings[] {
+  static selfQueryList(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
   @Query(Types.NonNullable(Types.List(AllTheThings)))
-  selfQueryListNonNullable(): AllTheThings[] {
+  static selfQueryListNonNullable(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
   // Other type queries
 
   @Query(AllTheThingsChild)
-  otherTypeQuery(): AllTheThingsChild {
+  static otherTypeQuery(): AllTheThingsChild {
     return new AllTheThingsChild();
   }
 
   @Query(Types.NonNullable(AllTheThingsChild))
-  otherTypeQueryNonNullable(): AllTheThingsChild {
+  static otherTypeQueryNonNullable(): AllTheThingsChild {
     return new AllTheThingsChild();
   }
 
   @Query(Types.List(AllTheThingsChild))
-  otherTypeQueryList(): AllTheThingsChild[] {
+  static otherTypeQueryList(): AllTheThingsChild[] {
     return [new AllTheThingsChild()];
   }
 
   @Query(Types.NonNullable(Types.List(AllTheThingsChild)))
-  otherTypeQueryListNonNullable(): AllTheThingsChild[] {
+  static otherTypeQueryListNonNullable(): AllTheThingsChild[] {
     return [new AllTheThingsChild()];
   }
 
@@ -147,88 +147,88 @@ export class AllTheThings {
   // String mutations
 
   @Mutation(Types.String)
-  stringMutation(): string {
+  static stringMutation(): string {
     return 'hi';
   }
 
   @Mutation(Types.NonNullable(Types.String))
-  stringMutationNonNullable(): string {
+  static stringMutationNonNullable(): string {
     return 'hi';
   }
 
   @Mutation(Types.List(Types.String))
-  stringMutationList(): string[] {
+  static stringMutationList(): string[] {
     return ['hi'];
   }
 
   @Mutation(Types.NonNullable(Types.List(Types.String)))
-  stringMutationListNonNullable(): string[] {
+  static stringMutationListNonNullable(): string[] {
     return ['hi'];
   }
 
   // Int mutations
 
   @Mutation(Types.Int)
-  intMutation(): Number {
+  static intMutation(): Number {
     return 1337;
   }
 
   @Mutation(Types.NonNullable(Types.Int))
-  intMutationNonNullable(): Number {
+  static intMutationNonNullable(): Number {
     return 1337;
   }
 
   @Mutation(Types.List(Types.Int))
-  intMutationList(): Number[] {
+  static intMutationList(): Number[] {
     return [1337];
   }
 
   @Mutation(Types.NonNullable(Types.List(Types.Int)))
-  intMutationListNonNullable(): Number[] {
+  static intMutationListNonNullable(): Number[] {
     return [1337];
   }
 
   // Self mutations
 
   @Mutation(AllTheThings)
-  selfMutation(): AllTheThings {
+  static selfMutation(): AllTheThings {
     return new AllTheThings();
   }
 
   @Mutation(Types.NonNullable(AllTheThings))
-  selfMutationNonNullable(): AllTheThings {
+  static selfMutationNonNullable(): AllTheThings {
     return new AllTheThings();
   }
 
   @Mutation(Types.List(AllTheThings))
-  selfMutationList(): AllTheThings[] {
+  static selfMutationList(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
   @Mutation(Types.NonNullable(Types.List(AllTheThings)))
-  selfMutationListNonNullable(): AllTheThings[] {
+  static selfMutationListNonNullable(): AllTheThings[] {
     return [new AllTheThings()];
   }
 
   // Other type mutations
 
   @Mutation(AllTheThingsChild)
-  otherTypeMutation(): AllTheThingsChild {
+  static otherTypeMutation(): AllTheThingsChild {
     return new AllTheThingsChild();
   }
 
   @Mutation(Types.NonNullable(AllTheThingsChild))
-  otherTypeMutationNonNullable(): AllTheThingsChild {
+  static otherTypeMutationNonNullable(): AllTheThingsChild {
     return new AllTheThingsChild();
   }
 
   @Mutation(Types.List(AllTheThingsChild))
-  otherTypeMutationList(): AllTheThingsChild[] {
+  static otherTypeMutationList(): AllTheThingsChild[] {
     return [new AllTheThingsChild()];
   }
 
   @Mutation(Types.NonNullable(Types.List(AllTheThingsChild)))
-  otherTypeMutationListNonNullable(): AllTheThingsChild[] {
+  static otherTypeMutationListNonNullable(): AllTheThingsChild[] {
     return [new AllTheThingsChild()];
   }
 }

@@ -18,7 +18,10 @@ function createAddFieldFn(key: Symbol) {
     type: GraphQLType | WrappedType | Object,
     opts?: MetadataFieldOpts
   ) {
-    const meta = Metadata.getOrCreateInstance(target, key);
+    const meta = Metadata.getOrCreateInstance(
+      opts && opts.isStaticFunction ? target : target.constructor,
+      key
+    );
 
     if (meta.hasField(fieldName)) {
       throw new Error(`Duplicate field "${fieldName}".`);
@@ -32,24 +35,26 @@ export const addFieldToObjectTypeMetadata = createAddFieldFn(OBJECT_TYPE_KEY);
 export const addQueryField = createAddFieldFn(OBJECT_QUERY_TYPE_KEY);
 export const addMutationField = createAddFieldFn(OBJECT_MUTATION_TYPE_KEY);
 
-export function getQueryObjectTypeMetadata(target: any): Metadata | null {
+export function getQueryObjectTypeMetadata(target: any): Metadata | undefined {
   return getObjectTypeMetadata(target, OBJECT_QUERY_TYPE_KEY);
 }
 
-export function getMutationObjectTypeMetadata(target: any): Metadata | null {
+export function getMutationObjectTypeMetadata(
+  target: any
+): Metadata | undefined {
   return getObjectTypeMetadata(target, OBJECT_MUTATION_TYPE_KEY);
 }
 
 export function getObjectTypeMetadata(
   target: any,
   key: Symbol = OBJECT_TYPE_KEY
-): Metadata | null {
+): Metadata | undefined {
   return Reflect.getMetadata(key, target);
 }
 
 export function getOrCreateObjectTypeMetadata(
   target: any,
   key: Symbol = OBJECT_TYPE_KEY
-): Metadata | null {
+): Metadata | undefined {
   return Metadata.getOrCreateInstance(target, key);
 }

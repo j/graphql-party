@@ -11,6 +11,7 @@ import {
   OBJECT_MUTATION_TYPE_KEY,
   MetadataField,
 } from './index';
+import { MetadataFieldOpts } from './metadataField';
 
 export interface GraphQLObjectOrInputTypeCtor {
   new (
@@ -18,23 +19,25 @@ export interface GraphQLObjectOrInputTypeCtor {
   ): GraphQLObjectType | GraphQLInputObjectType;
 }
 
-function getResolverForField(field: MetadataField): Function | null {
+function getResolverForField(field: MetadataField): Function | undefined {
   const opts = field.getOpts();
 
   if (!opts || !opts.resolve) {
-    return null;
+    return undefined;
   }
 
   return function(): any {
-    return opts.resolve.apply(null, Object.values(arguments));
+    return opts.resolve.apply(undefined, Object.values(arguments));
   };
 }
 
 function getResolverForQueryOrMutation(
   meta: Metadata,
   field: MetadataField
-): Function | null {
-  const instance = meta.getTargetInstance();
+): Function | undefined {
+  const instance = field.isResolverStaticFunction()
+    ? meta.getTarget()
+    : meta.getTargetInstance();
 
   return function(): any {
     return instance[field.getOpts().methodName].apply(
@@ -53,6 +56,7 @@ export class Metadata {
   private fields: { [fieldName: string]: MetadataField };
   private instance?: Object;
   private targetInstanceArgs?: any;
+  private description?: string;
 
   public static getOrCreateInstance(
     target: any,
@@ -70,13 +74,18 @@ export class Metadata {
   constructor(target: any, key: Symbol = OBJECT_TYPE_KEY) {
     this.target = target;
     this.key = key;
-    this.name = null;
     this.Type = GraphQLObjectType;
-    this.objectType = null;
     this.fields = {};
     this.targetInstanceArgs = [];
+    this.name = undefined;
+    this.objectType = undefined;
+    this.description = undefined;
 
     Reflect.defineMetadata(key, this, target);
+  }
+
+  isInputType() {
+    return this.Type === GraphQLInputObjectType;
   }
 
   isQueryOrMutation() {
@@ -99,8 +108,20 @@ export class Metadata {
     this.targetInstanceArgs = args;
   }
 
+  getTargetInstanceArgs() {
+    return this.targetInstanceArgs;
+  }
+
   getKey(): Symbol {
     return this.key;
+  }
+
+  setDescription(description: string): void {
+    this.description = description;
+  }
+
+  getDescription(): string | undefined {
+    return this.description;
   }
 
   setName(name: string): void {
@@ -152,9 +173,10 @@ export class Metadata {
       fields[fieldName] = {
         type: field.computeType(field.getType(), fieldName),
         args: field.computeArgs(),
+        description: field.getDescription(),
       };
 
-      let resolve: Function | null = null;
+      let resolve: Function | undefined = undefined;
 
       if (this.isQueryOrMutation()) {
         resolve = getResolverForQueryOrMutation(this, field);
@@ -179,7 +201,11 @@ export class Metadata {
   }
 
   createType(fields: any): GraphQLObjectType | GraphQLInputObjectType {
-    this.objectType = new this.Type({ name: this.getName(), fields });
+    this.objectType = new this.Type({
+      name: this.getName(),
+      description: this.getDescription(),
+      fields,
+    });
 
     return this.objectType;
   }
