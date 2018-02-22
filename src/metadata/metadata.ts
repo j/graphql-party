@@ -5,6 +5,7 @@ import {
   GraphQLObjectTypeConfig,
   GraphQLInputObjectTypeConfig,
 } from 'graphql';
+import { get } from 'lodash';
 import {
   OBJECT_TYPE_KEY,
   OBJECT_QUERY_TYPE_KEY,
@@ -17,6 +18,12 @@ export interface GraphQLObjectOrInputTypeCtor {
   new (
     config: GraphQLObjectTypeConfig<any, any> | GraphQLInputObjectTypeConfig
   ): GraphQLObjectType | GraphQLInputObjectType;
+}
+
+export interface MetadataParam {
+  type: string;
+  parameterIndex: number;
+  field?: string;
 }
 
 function getResolverForField(field: MetadataField): Function | undefined {
@@ -40,10 +47,27 @@ function getResolverForQueryOrMutation(
     : meta.getTargetInstance();
 
   return function(): any {
-    return instance[field.getOpts().methodName].apply(
-      instance,
-      Object.values(arguments)
-    );
+    const params = field.getParams();
+    let args: Array<any> = Object.values(arguments);
+
+    if (params.length) {
+      const oldArgs = args;
+
+      args = [];
+
+      params.forEach(({ type, parameterIndex, field }) => {
+        switch (type) {
+          case '@Arg':
+            args[parameterIndex] = !field ? oldArgs[1] : get(oldArgs[1], field);
+            break;
+          case '@Context':
+            args[parameterIndex] = !field ? oldArgs[2] : get(oldArgs[2], field);
+            break;
+        }
+      });
+    }
+
+    return instance[field.getOpts().methodName].apply(instance, args);
   };
 }
 

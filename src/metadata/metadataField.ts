@@ -7,6 +7,7 @@ import {
 } from 'graphql';
 import { WrappedType, resolveWrappedType } from '../utilities/wrappedType';
 import { getObjectTypeMetadata } from './index';
+import { MetadataParam } from './metadata';
 
 export interface MetadataFieldOpts {
   args?: { [argument: string]: GraphQLType | WrappedType | Object };
@@ -21,7 +22,8 @@ export class MetadataField {
   constructor(
     private fieldName: string,
     private type: GraphQLType | WrappedType | Object,
-    private opts?: MetadataFieldOpts
+    private opts?: MetadataFieldOpts,
+    private params?: MetadataParam[]
   ) {}
 
   getFieldName(): string {
@@ -34,6 +36,10 @@ export class MetadataField {
 
   getOpts(): MetadataFieldOpts {
     return this.opts;
+  }
+
+  getParams(): MetadataParam[] {
+    return this.params || [];
   }
 
   getDescription(): string {

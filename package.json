@@ -51,6 +51,7 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
+    "lodash": "^4.17.5",
     "reflect-metadata": "^0.1.12"
   },
   "peerDependencies": {

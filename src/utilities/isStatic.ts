@@ -1,7 +1,14 @@
 export function isStaticFunction(target, methodName, descriptor) {
+  if (descriptor) {
+    return (
+      typeof target.prototype !== 'undefined' &&
+      target[methodName] === descriptor.value
+    );
+  }
+
   return (
     typeof target.prototype !== 'undefined' &&
-    target[methodName] === descriptor.value
+    typeof target[methodName] === 'function'
   );
 }
 
