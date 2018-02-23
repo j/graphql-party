@@ -13,91 +13,150 @@
 **graphql-party** makes it easy to create GraphQL schemas and resolvers from javascript classes using @decorators.
 
 
-### Before we can party....
-
-This is incomplete right now, but getting closer!
-
-
 ### Example
 ```javascript
 import { printSchema } from 'graphql';
-import { ObjectType, InputType, Field, Types, Mutation, Query, buildSchema as letsParty } from '../../src';
+import { GraphQLDateTime } from 'graphql-iso-date';
+import dedent from 'graphql/jsutils/dedent';
+import {
+  ObjectType,
+  InputType,
+  Query,
+  Mutation,
+  Field,
+  Types,
+  Arg,
+  Context,
+  buildSchema
+} from 'graphql-party';
 
-// ... coming soon
-
-@InputType()
-class CreateUserInput {
-  @Field(Types.String)
-  public firstName: string;
-
+@ObjectType({ description: 'User accounts.' })
+export class User {
   @Field(Types.ID)
-  public bestFriend: User;
-
-  @Field(Types.List(Types.ID))
-  public friends: User[];
-}
-
-@ObjectType()
-class User {
-  @Field(Types.NonNullable(Types.ID))
-  public id: number;
+  id: string;
 
   @Field(Types.String)
-  public firstName: string;
+  firstName: string;
 
-  @Field(User)
-  public bestFriend: User;
+  @Field(Types.String)
+  lastName: string;
 
-  @Field(Types.List(User))
-  public friends: User[];
+  @Field(Types.String, {
+    resolve: user => `${user.firstName} ${user.lastName}`,
+  })
+  fullName: string;
 
-  constructor(firstName: string) {
+  @Field(GraphQLDateTime)
+  createdAt: Date;
+
+  constructor(
+    id: string | number,
+    firstName: string,
+    lastName: string,
+    createdAt: Date
+  ) {
+    this.id = String(id);
     this.firstName = firstName;
-  }
-
-  // ...coming soon
-
-  @Query({ type: Types.List(User) })
-  static async getUsers(@Context('users') users: UserRepository): Promise<User[]> {
-    return await users.find();
-  }
-
-  @Mutation({ type: User, args: { input: CreateUserInput } })
-  static async createUser(
-    @Context('users') users: UserRepository,
-    @Arg('input') input: CreateUserInput
-  ): Promise<User> {
-    return await users.createUser(input)
+    this.lastName = lastName;
+    this.createdAt = createdAt;
   }
 }
 
-console.log(printSchema(letsParty(CreateUserInput, User)));
+@InputType({ description: 'Input type for createUser mutation.' })
+export class UserInput {
+  @Field(Types.NonNullable(Types.String))
+  firstName: string;
+
+  @Field(Types.NonNullable(Types.String))
+  lastName: string;
+}
+
+export class UserQueries {
+  @Query(User, { description: 'Gets a user.' })
+  User(
+    @Arg('id', Types.ID) id: string,
+    @Context() context
+  ): User {
+    const result = context.db[parseInt(String(id)) - 1];
+
+    return new User(
+      result.id,
+      result.firstName,
+      result.lastName,
+      result.createdAt
+    );
+  }
+
+  @Query(Types.List(User), { description: 'Gets a list of users.' })
+  users(obj, args, context): User {
+    return context.db.map(
+      item => new User(item.id, item.firstName, item.lastName, item.createdAt)
+    );
+  }
+}
+
+export class UserMutations {
+  @Mutation(User, { description: 'Creates a user.' })
+  createUser(
+    @Arg('input', Types.NonNullable(UserInput)) input: UserInput,
+    @Context() context
+  ): User {
+    return context.createUser(input.firstName, input.lastName);
+  }
+
+  @Mutation(User, { description: 'Updates a user.' })
+  updateUser(
+    @Arg('id', Types.NonNullable(Types.ID)) id: string,
+    @Arg('input', Types.NonNullable(UserInput)) input: UserInput,
+    @Context('updateUser') updateUser: Function
+  ): User {
+    return updateUser(id, input);
+  }
+}
+
+console.log(printSchema(buildSchema(User, UserInput, UserQueries, UserMutations)));
 
 /**
 Outputs:
 
-type User {
-  id: ID!
-  firstName: String
-  bestFriend: User
-  friends: [User]
-}
+"""
+A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the
+`date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO
+8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar DateTime
 
-input CreateUserInput {
-  firstName: String
-  bestFriend: ID
-  friends: [ID]
+type Mutation {
+    """Creates a user."""
+    createUser(input: UserInput!): User
+    
+    """Updates a user."""
+    updateUser(id: ID!, input: UserInput!): User
 }
 
 type Query {
-  getUsers: [User]
+    """Gets a user."""
+    User(id: ID): User
+    
+    """Gets a list of users."""
+    users: [User]
 }
 
-type Mutation {
-  createUser(input: CreateUserInput): User
+"""User accounts."""
+type User {
+    id: ID
+    firstName: String
+    lastName: String
+    fullName: String
+    createdAt: DateTime
 }
- */
 
+"""Input type for createUser mutation."""
+input UserInput {
+    firstName: String!
+    lastName: String!
+}
+*/
 ```
 
 Check out `examples/simple` for more examples!
