@@ -1,16 +1,12 @@
 import 'reflect-metadata';
-import {
-  isType,
-  GraphQLType,
-  GraphQLObjectType,
-  GraphQLInputObjectType,
-} from 'graphql';
+import { isType, GraphQLType } from 'graphql';
 import { WrappedType, resolveWrappedType } from '../utilities/wrappedType';
 import { getObjectTypeMetadata } from './index';
 import { MetadataParam } from './metadata';
+import { ParamTypes } from '../decorators/params';
+import { GraphQLPartyType } from '../types';
 
 export interface MetadataFieldOpts {
-  args?: { [argument: string]: GraphQLType | WrappedType | Object };
   resolve?: Function;
   isStaticFunction?: boolean;
   methodName?: string;
@@ -21,7 +17,7 @@ export interface MetadataFieldOpts {
 export class MetadataField {
   constructor(
     private fieldName: string,
-    private type: GraphQLType | WrappedType | Object,
+    private type: GraphQLPartyType,
     private opts?: MetadataFieldOpts,
     private params?: MetadataParam[]
   ) {}
@@ -30,7 +26,7 @@ export class MetadataField {
     return this.fieldName;
   }
 
-  getType(): GraphQLType | WrappedType | Object {
+  getType(): GraphQLPartyType {
     return this.type;
   }
 
@@ -53,21 +49,54 @@ export class MetadataField {
   }
 
   computeArgs(): { [argument: string]: any } | undefined {
-    const opts = this.opts;
+    const args = {};
+    let startsAtZero = false;
+    let invalidOrder = false;
+    let wasNonArg = false;
 
-    if (!opts || !opts.args || !Object.keys(opts.args).length) {
-      return undefined;
+    const params = this.getParams();
+
+    for (let i = 0; i < params.length; i++) {
+      if (!params[i]) {
+        wasNonArg = true;
+        continue;
+      }
+
+      const { paramType, paramIndex, field, type } = params[i];
+
+      if (paramType === ParamTypes.Arg) {
+        if (paramIndex === 0) {
+          startsAtZero = true;
+        } else if (wasNonArg) {
+          invalidOrder = true;
+        }
+
+        args[field] = { type: this.computeType(type, field) };
+      } else {
+        wasNonArg = true;
+      }
     }
 
-    let args = {};
+    // @Arg() must be the first param.
+    if (!startsAtZero) {
+      invalidOrder = true;
+    }
 
-    Object.keys(opts.args).forEach(arg => {
-      args[arg] = { type: this.computeType(opts.args[arg], arg) };
-    });
+    const hasArgs = Object.keys(args).length > 0;
 
-    return args;
+    // @Arg must be defined before any other parameter.
+    if (hasArgs && invalidOrder) {
+      throw new Error(
+        `@Arg must be declared before any other parameter in "${this.getFieldName()}".`
+      );
+    }
+
+    return hasArgs ? args : undefined;
   }
 
+  /**
+   * Creates a field's GraphQLType.
+   */
   computeType(type, name): GraphQLType {
     if (isType(type)) {
       return type;

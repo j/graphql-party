@@ -49,8 +49,12 @@ export class UserInput {
 }
 
 export class UserQueries {
-  @Query(User, { args: { id: Types.ID }, description: 'Gets a user.' })
-  User(obj, { id } = { id: Types.ID }, context): User {
+  @Query(User, { description: 'Gets a user.' })
+  User(
+    @Arg('id', Types.ID)
+    id: string,
+    @Context() context
+  ): User {
     const result = context.db[parseInt(String(id)) - 1];
 
     return new User(
@@ -70,24 +74,21 @@ export class UserQueries {
 }
 
 export class UserMutations {
-  @Mutation(User, {
-    args: { input: Types.NonNullable(UserInput) },
-    description: 'Creates a user.',
-  })
-  createUser(obj, { input }: { input: UserInput }, context): User {
+  @Mutation(User, { description: 'Creates a user.' })
+  createUser(
+    @Arg('input', Types.NonNullable(UserInput))
+    input: UserInput,
+    @Context() context
+  ): User {
     return context.createUser(input.firstName, input.lastName);
   }
 
-  @Mutation(User, {
-    args: {
-      id: Types.NonNullable(Types.ID),
-      input: Types.NonNullable(UserInput),
-    },
-    description: 'Updates a user.',
-  })
+  @Mutation(User, { description: 'Updates a user.' })
   updateUser(
-    @Arg('id') id: string,
-    @Arg('input') input: UserInput,
+    @Arg('id', Types.NonNullable(Types.ID))
+    id: string,
+    @Arg('input', Types.NonNullable(UserInput))
+    input: UserInput,
     @Context('updateUser') updateUser: Function
   ): User {
     return updateUser(id, input);

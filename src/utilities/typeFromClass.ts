@@ -180,10 +180,13 @@ export function assertValidTarget(target: any) {
 }
 
 export function buildSchema(
-  { classes }: { classes: any[] } = { classes: [] }
+  opts: { classes: any[] } | any = { classes: [] },
+  ...others: any[]
 ): GraphQLSchema {
   const queryObjects = [];
   const mutationObjects = [];
+
+  const classes = opts.classes ? opts.classes : [...arguments];
 
   classes.forEach(target => {
     assertValidTarget(target);

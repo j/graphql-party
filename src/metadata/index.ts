@@ -1,8 +1,7 @@
 import 'reflect-metadata';
-import { GraphQLType } from 'graphql';
-import { WrappedType } from '../utilities/wrappedType';
 import { MetadataField, MetadataFieldOpts } from './metadataField';
 import { Metadata, MetadataParam } from './metadata';
+import { GraphQLPartyType } from '../types';
 
 export { MetadataField } from './metadataField';
 export { Metadata, GraphQLObjectOrInputTypeCtor } from './metadata';
@@ -16,7 +15,7 @@ function createAddFieldFn(key: Symbol) {
   return function(
     target,
     fieldName: string,
-    type: GraphQLType | WrappedType | Object,
+    type: GraphQLPartyType,
     opts?: MetadataFieldOpts
   ) {
     const meta = Metadata.getOrCreateInstance(
@@ -50,7 +49,7 @@ export function addFieldParamMetadata(
 ) {
   const params = getFieldParamMetadata(target, methodName) || [];
 
-  params.push(param);
+  params[param.paramIndex] = param;
 
   Reflect.defineMetadata(PARAM_METADATA_KEY, params, target, methodName);
 }

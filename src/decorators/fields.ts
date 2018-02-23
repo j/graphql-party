@@ -1,19 +1,14 @@
-import * as graphql from 'graphql';
 import { addFieldToObjectTypeMetadata } from '../metadata';
-import { WrappedType } from '../utilities/wrappedType';
 import { isStaticProperty } from '../utilities/isStatic';
+import { GraphQLPartyType } from '../types';
 
 interface FieldOpts {
   name?: string;
-  args?: { [argument: string]: graphql.GraphQLType | WrappedType | Object };
   resolve?: Function;
   description?: string;
 }
 
-export function Field(
-  type: graphql.GraphQLType | WrappedType | Object,
-  opts: FieldOpts = {}
-): Function {
+export function Field(type: GraphQLPartyType, opts: FieldOpts = {}): Function {
   return function(target: any, propertyName: string): void {
     const fieldName = opts.name || propertyName;
 
@@ -24,7 +19,6 @@ export function Field(
     addFieldToObjectTypeMetadata(target, fieldName, type, {
       propertyName,
       isStaticFunction: false,
-      args: opts.args,
       resolve: opts.resolve,
       description: opts.description,
     });

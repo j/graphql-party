@@ -13,6 +13,8 @@ import {
   MetadataField,
 } from './index';
 import { MetadataFieldOpts } from './metadataField';
+import { ParamTypes } from '../decorators/params';
+import { GraphQLPartyType } from '../types';
 
 export interface GraphQLObjectOrInputTypeCtor {
   new (
@@ -21,9 +23,10 @@ export interface GraphQLObjectOrInputTypeCtor {
 }
 
 export interface MetadataParam {
-  type: string;
-  parameterIndex: number;
+  paramType: ParamTypes;
+  paramIndex: number;
   field?: string;
+  type?: GraphQLPartyType;
 }
 
 function getResolverForField(field: MetadataField): Function | undefined {
@@ -55,13 +58,13 @@ function getResolverForQueryOrMutation(
 
       args = [];
 
-      params.forEach(({ type, parameterIndex, field }) => {
-        switch (type) {
-          case '@Arg':
-            args[parameterIndex] = !field ? oldArgs[1] : get(oldArgs[1], field);
+      params.forEach(({ paramType, paramIndex, field }) => {
+        switch (paramType) {
+          case ParamTypes.Arg:
+            args[paramIndex] = !field ? oldArgs[1] : get(oldArgs[1], field);
             break;
-          case '@Context':
-            args[parameterIndex] = !field ? oldArgs[2] : get(oldArgs[2], field);
+          case ParamTypes.Context:
+            args[paramIndex] = !field ? oldArgs[2] : get(oldArgs[2], field);
             break;
         }
       });

@@ -13,11 +13,11 @@ describe('@Mutation()', () => {
         this.calledCount = 0;
       }
 
-      @Mutation(Types.String, { args: { sound: Types.String } })
-      soundsLike(_, { sound }: { sound: string }) {
+      @Mutation(Types.String)
+      soundsLike() {
         this.calledCount++;
 
-        return sound;
+        return 'moo!';
       }
     }
 
@@ -30,7 +30,7 @@ describe('@Mutation()', () => {
       mutationType,
       `
       mutation {
-        soundsLike(sound: "moo!")
+        soundsLike
       }
     `
     );
@@ -52,11 +52,11 @@ describe('@Mutation()', () => {
         this.calledCount = 0;
       }
 
-      @Mutation(Types.String, { args: { sound: Types.String } })
-      async soundsLikeAsync(_, { sound }: { sound: string }) {
+      @Mutation(Types.String)
+      async soundsLikeAsync() {
         this.calledCount++;
 
-        return sound;
+        return '...moo!';
       }
     }
 
@@ -69,7 +69,7 @@ describe('@Mutation()', () => {
       mutationType,
       `
       mutation {
-        soundsLikeAsync(sound: "...moo!")
+        soundsLikeAsync
       }
     `
     );

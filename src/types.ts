@@ -1,6 +1,8 @@
 import * as graphql from 'graphql';
 import { WrappedType } from './utilities/wrappedType';
 
+export type GraphQLPartyType = graphql.GraphQLType | WrappedType | Object;
+
 export const Int = graphql.GraphQLInt;
 export const Float = graphql.GraphQLFloat;
 export const String = graphql.GraphQLString;
@@ -8,7 +10,7 @@ export const Boolean = graphql.GraphQLBoolean;
 export const ID = graphql.GraphQLID;
 
 export function List(
-  type: graphql.GraphQLType | WrappedType | Object
+  type: GraphQLPartyType
 ): graphql.GraphQLList<graphql.GraphQLType> | WrappedType {
   // @ts-ignore
   if (graphql.isType(type) && !graphql.isListType(type)) {
@@ -19,7 +21,7 @@ export function List(
 }
 
 export function NonNullable(
-  type: graphql.GraphQLNullableType | WrappedType | Object
+  type: GraphQLPartyType
 ): graphql.GraphQLNonNull<graphql.GraphQLNullableType> | WrappedType {
   // @ts-ignore
   if (graphql.isNullableType(type)) {

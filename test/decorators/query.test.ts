@@ -8,21 +8,19 @@ import { MetadataField } from '../../src/metadata/metadataField';
 
 describe('@Query()', () => {
   const tests = [
-    { type: Types.String, name: undefined, args: undefined },
-    { type: Types.Int, name: 'findTitle', args: undefined },
-    { type: Types.Boolean, name: undefined, args: { article: Types.Int } },
+    { type: Types.String, name: undefined },
+    { type: Types.Int, name: 'findTitle' },
   ];
 
-  tests.forEach(({ type, name, args }) => {
+  tests.forEach(({ type, name }) => {
     const description = [
       `type is "${type}"`,
       `name is ${name ? 'defined' : 'undefined'}`,
-      `args are ${name ? 'defined' : 'undefined'}`,
     ];
 
     it(`creates @Query when ${description.join(' and ')}`, () => {
       class ArticleRepository {
-        @Query(type, { name, args })
+        @Query(type, { name })
         static findTitleForArticle(): any {
           return 'some title';
         }
@@ -53,7 +51,6 @@ describe('@Query()', () => {
       assert.equal(findField.getType(), type);
 
       const opts = findField.getOpts();
-      assert.deepEqual(opts.args, args);
       assert.equal(opts.methodName, 'findTitleForArticle');
     });
   });
