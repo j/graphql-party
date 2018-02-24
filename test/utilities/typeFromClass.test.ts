@@ -13,7 +13,6 @@ import {
 import {
   typeFromClassWithQueries,
   typeFromClassWithMutations,
-  assertValidTarget,
   buildSchema,
 } from '../../src/utilities/typeFromClass';
 import {
@@ -116,20 +115,16 @@ describe('typeFromClass.ts', () => {
   });
 
   describe('assertValidTarget()', () => {
-    it('validates the class', () => {
-      assertValidTarget(AllTheThings);
-    });
-
     it('errors when @ObjectType contains @Query fields that are not static', () => {
       assert.throws(
-        () => assertValidTarget(InvalidObjectTypeWithQueries),
+        () => buildSchema(InvalidObjectTypeWithQueries),
         'Fields "invalidQuery1", "invalidQuery2" must be static if they belong to an @ObjectType.'
       );
     });
 
     it('errors when @ObjectType contains @Mutation fields that are not static', () => {
       assert.throws(
-        () => assertValidTarget(InvalidObjectTypeWithMutations),
+        () => buildSchema(InvalidObjectTypeWithMutations),
         'Fields "invalidMutation1", "invalidMutation2" must be static if they belong to an @ObjectType.'
       );
     });
@@ -140,6 +135,12 @@ describe('typeFromClass.ts', () => {
       const schema = buildSchema({
         classes: [User, UserQueries, UserMutations, UserInput],
       });
+
+      assert.equal(graphql.printSchema(schema), expectedUserSchema);
+    });
+
+    it('creates a schema from a glob', () => {
+      const schema = buildSchema(`${__dirname}/../fixtures/user.ts`);
 
       assert.equal(graphql.printSchema(schema), expectedUserSchema);
     });

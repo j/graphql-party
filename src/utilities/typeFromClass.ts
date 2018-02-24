@@ -4,6 +4,7 @@ import {
   isType,
   GraphQLSchema,
 } from 'graphql';
+import { sync as requireGlobSync } from 'require-glob';
 import {
   getMutationObjectTypeMetadata,
   getObjectTypeMetadata,
@@ -143,13 +144,14 @@ export function typeFromClassWithMutations(
   ) as GraphQLObjectType | undefined;
 }
 
-export function assertValidTarget(target: any) {
-  const keys = Reflect.getOwnMetadataKeys(target);
-
-  const isObjectType = keys.includes(OBJECT_TYPE_KEY);
-  const isQuery = keys.includes(OBJECT_QUERY_TYPE_KEY);
-  const isMutation = keys.includes(OBJECT_MUTATION_TYPE_KEY);
-
+function assertValidTarget(
+  target: any,
+  {
+    isObjectType,
+    isQuery,
+    isMutation,
+  }: { isObjectType: boolean; isQuery: boolean; isMutation: boolean }
+) {
   // @Query and @Mutation within an @ObjectType must be static methods.
   if (isObjectType && (isQuery || isMutation)) {
     const objectMeta = getObjectTypeMetadata(target);
@@ -179,6 +181,35 @@ export function assertValidTarget(target: any) {
   }
 }
 
+function isClass(target) {
+  return (
+    typeof target === 'function' || typeof target.prototype !== 'undefined'
+  );
+}
+
+function isPotentialTarget(
+  target
+): {
+  isObjectType: boolean;
+  isQuery: boolean;
+  isMutation: boolean;
+  isPotential: boolean;
+} {
+  const keys = Reflect.getOwnMetadataKeys(target);
+
+  const isObjectType = keys.includes(OBJECT_TYPE_KEY);
+  const isQuery = keys.includes(OBJECT_QUERY_TYPE_KEY);
+  const isMutation = keys.includes(OBJECT_MUTATION_TYPE_KEY);
+
+  let isPotential = true;
+
+  if (!isObjectType && !isQuery && !isMutation) {
+    isPotential = false;
+  }
+
+  return { isObjectType, isQuery, isMutation, isPotential };
+}
+
 export function buildSchema(
   opts: { classes: any[] } | any = { classes: [] },
   ...others: any[]
@@ -186,10 +217,50 @@ export function buildSchema(
   const queryObjects = [];
   const mutationObjects = [];
 
-  const classes = opts.classes ? opts.classes : [...arguments];
+  const globs = [];
+  let targets = [];
 
-  classes.forEach(target => {
-    assertValidTarget(target);
+  (opts.classes ? opts.classes : [...arguments]).forEach(target => {
+    if (typeof target === 'string') {
+      globs.push(target);
+
+      return;
+    }
+
+    if (isClass(target)) {
+      targets.push(target);
+    }
+  });
+
+  if (globs.length) {
+    const modules = requireGlobSync(globs);
+
+    Object.values(modules)
+      .map(Object.values)
+      .forEach(potentialTargets => {
+        potentialTargets.forEach(target => {
+          if (isClass(target)) {
+            targets.push(target);
+          }
+        });
+      });
+  }
+
+  targets.forEach(target => {
+    const {
+      isObjectType,
+      isQuery,
+      isMutation,
+      isPotential,
+    } = isPotentialTarget(target);
+
+    // skip invalid target types
+    if (!isPotential) {
+      return;
+    }
+
+    // validate potentials
+    assertValidTarget(target, { isObjectType, isQuery, isMutation });
 
     const knownMetas = Reflect.getOwnMetadataKeys(target);
 
