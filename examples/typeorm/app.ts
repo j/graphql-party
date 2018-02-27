@@ -1,8 +1,28 @@
 import { GraphQLServer } from 'graphql-yoga';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Entity, EntityRepository, EntityManager, getCustomRepository, ObjectID, ObjectIdColumn, Column, createConnection } from 'typeorm';
+import {
+  Entity,
+  EntityRepository,
+  EntityManager,
+  getCustomRepository,
+  ObjectID,
+  ObjectIdColumn,
+  Column,
+  createConnection,
+} from 'typeorm';
 import * as faker from 'faker';
-import { ObjectType, InputType, Query, Mutation, Arg, Context, Field, Types, setInstance, buildSchema } from '../../src';
+import {
+  ObjectType,
+  InputType,
+  Query,
+  Mutation,
+  Arg,
+  Context,
+  Field,
+  Types,
+  setInstance,
+  buildSchema,
+} from '../../src';
 
 @Entity()
 @ObjectType()
@@ -19,8 +39,7 @@ class User {
   @Field(Types.String)
   lastName: string;
 
-  @Column()
-  bestFriendId: string;
+  @Column() bestFriendId: string;
 
   // ideally this should go in the repository... coming soon...
   @Field(User)
@@ -34,8 +53,8 @@ class User {
 
   @Field(Types.String)
   fullName() {
-    return `${this.firstName} ${this.lastName}`
-  };
+    return `${this.firstName} ${this.lastName}`;
+  }
 }
 
 @InputType()
@@ -55,18 +74,30 @@ class UserRepository {
   async seed() {
     const user = await this.manager.findOne(User, { order: { _id: -1 } });
 
-    await this.manager.save(await this.manager.create(User, [
-      { firstName: faker.name.firstName(), lastName: faker.name.lastName(), bestFriendId: user ? user.id : undefined },
-      { firstName: faker.name.firstName(), lastName: faker.name.lastName(), bestFriendId: user ? user.id : undefined }
-    ]));
-
+    await this.manager.save(
+      await this.manager.create(User, [
+        {
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName(),
+          bestFriendId: user ? user.id : undefined,
+        },
+        {
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName(),
+          bestFriendId: user ? user.id : undefined,
+        },
+      ])
+    );
 
     return true;
   }
 
   @Mutation(User)
-  async createUser(@Arg('input', Types.NonNullable(UserInput)) input: UserInput) {
-    return this.manager.save(await this.manager.create(User, input));
+  async createUser(
+    @Arg('input', Types.NonNullable(UserInput))
+    input: UserInput
+  ) {
+    return this.manager.save(await this.manager.create(User, { ...input }));
   }
 
   @Query(Types.List(User))
@@ -76,8 +107,10 @@ class UserRepository {
 
   @Query(User)
   async findByName(
-    @Arg('firstName', Types.String) firstName: string,
-    @Arg('lastName', Types.String) lastName: string
+    @Arg('firstName', Types.String)
+    firstName: string,
+    @Arg('lastName', Types.String)
+    lastName: string
   ) {
     return await this.manager.findOne(User, { firstName, lastName });
   }
@@ -93,9 +126,7 @@ class UserRepository {
   await createConnection({
     type: 'mongodb',
     url: await mongod.getConnectionString(),
-    entities: [
-      User
-    ]
+    entities: [User],
   });
 
   const userRepository = getCustomRepository(UserRepository);
@@ -108,8 +139,8 @@ class UserRepository {
   const server = new GraphQLServer({
     schema: buildSchema(User, UserInput, UserRepository),
     context: {
-      userRepository
-    }
+      userRepository,
+    },
   });
 
   server.start(() => console.log('Server is running on http://localhost:4000'));
