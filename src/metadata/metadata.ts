@@ -29,7 +29,7 @@ export interface MetadataParam {
   type?: GraphQLPartyType;
 }
 
-function getArg(oldArgs: any[], index: Number, field?): any {
+function getArg(oldArgs: any[], index: number, field?): any {
   if (!oldArgs || typeof oldArgs[index] === 'undefined') {
     return null;
   }
@@ -45,7 +45,7 @@ function getArg(oldArgs: any[], index: Number, field?): any {
 
 function getArgs(field, origArgs) {
   const params = field.getParams();
-  let args: Array<any> = origArgs;
+  let args: any[] = origArgs;
 
   if (params.length) {
     const oldArgs = args;
