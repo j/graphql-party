@@ -50,7 +50,7 @@ describe('@Query()', () => {
       assert.equal(findField.getType(), type);
 
       const opts = findField.getOpts();
-      assert.equal(opts.methodName, 'findTitleForArticle');
+      assert.equal(opts.propertyOrMethodName, 'findTitleForArticle');
     });
   });
 

@@ -16,10 +16,10 @@ function createAddFieldFn(key: Symbol) {
     target,
     fieldName: string,
     type: GraphQLPartyType,
-    opts?: MetadataFieldOpts
+    opts: MetadataFieldOpts = {}
   ) {
     const meta = Metadata.getOrCreateInstance(
-      opts && opts.isStaticFunction ? target : target.constructor,
+      opts.isStaticFunction ? target : target.constructor,
       key
     );
 
@@ -27,14 +27,12 @@ function createAddFieldFn(key: Symbol) {
       throw new Error(`Duplicate field "${fieldName}".`);
     }
 
-    meta.addField(
-      new MetadataField(
-        fieldName,
-        type,
-        opts,
-        getFieldParamMetadata(target, fieldName)
-      )
-    );
+    let params;
+    if (opts.descriptor) {
+      params = getFieldParamMetadata(target, opts.propertyOrMethodName);
+    }
+
+    meta.addField(new MetadataField(fieldName, type, opts, params));
   };
 }
 

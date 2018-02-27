@@ -155,7 +155,7 @@ function assertValidTarget(
 
     fields.forEach(field => {
       if (!field.isResolverStaticFunction()) {
-        invalidFields.push(field.getOpts().methodName);
+        invalidFields.push(field.getOpts().propertyOrMethodName);
       }
     });
 

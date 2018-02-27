@@ -11,7 +11,6 @@ import {
   OBJECT_MUTATION_TYPE_KEY,
   MetadataField,
 } from './index';
-import { MetadataFieldOpts } from './metadataField';
 import { ParamTypes } from '../decorators/params';
 import { GraphQLPartyType } from '../types';
 import { getFromContainer } from '../container';
@@ -45,6 +44,7 @@ function getArg(oldArgs: any[], index: number, field?): any {
 
 function getArgs(field, origArgs) {
   const params = field.getParams();
+
   let args: any[] = origArgs;
 
   if (params.length) {
@@ -78,8 +78,13 @@ function getResolverForField(field: MetadataField): Function | undefined {
     return undefined;
   }
 
+  const resolverTargetInstance = field.getResolverTargetInstance();
+
   return function(...args): any {
-    return resolver.apply(args[0], getArgs(field, args));
+    return resolver.apply(
+      resolverTargetInstance || args[0],
+      getArgs(field, args)
+    );
   };
 }
 
@@ -92,7 +97,7 @@ function getResolverForQueryOrMutation(
     : meta.getTargetInstance();
 
   return function(...args): any {
-    return instance[field.getOpts().methodName].apply(
+    return instance[field.getOpts().propertyOrMethodName].apply(
       instance,
       getArgs(field, args)
     );

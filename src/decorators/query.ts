@@ -15,9 +15,13 @@ export function Query(type: GraphQLPartyType, opts: QueryOpts = {}): Function {
   return function(target: any, methodName: string, descriptor: any): void {
     const fieldName = opts.name || methodName;
 
+    if (!descriptor) {
+      throw new Error('@Query must be a function.');
+    }
+
     addQueryField(target, fieldName, type, {
       descriptor,
-      methodName,
+      propertyOrMethodName: methodName,
       isStaticFunction: isStaticFunction(target, methodName, descriptor),
       description: opts.description,
     });

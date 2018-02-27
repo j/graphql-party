@@ -13,5 +13,17 @@ export function isStaticFunction(target, methodName, descriptor) {
 }
 
 export function isStaticProperty(target, propertyName) {
-  return typeof target.prototype !== 'undefined' && target[propertyName];
+  return (
+    typeof target.prototype !== 'undefined' &&
+    target[propertyName] &&
+    typeof target[propertyName] !== 'function'
+  );
+}
+
+export function isStatic(target, propertyOrMethodName, descriptor?) {
+  if (descriptor) {
+    return isStaticFunction(target, propertyOrMethodName, descriptor);
+  }
+
+  return isStaticProperty(target, propertyOrMethodName);
 }

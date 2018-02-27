@@ -5,13 +5,14 @@ import { getObjectTypeMetadata } from './index';
 import { MetadataParam } from './metadata';
 import { ParamTypes } from '../decorators/params';
 import { GraphQLPartyType } from '../types';
+import { getFromContainer } from '../container';
 
 export interface MetadataFieldOpts {
   resolve?: Function;
   isStaticFunction?: boolean;
+  resolverTarget?: any;
   descriptor?: any;
-  methodName?: string;
-  propertyName?: string;
+  propertyOrMethodName?: string;
   description?: string;
 }
 
@@ -27,12 +28,24 @@ export class MetadataField {
     return this.fieldName;
   }
 
+  setType(type: GraphQLPartyType): void {
+    this.type = type;
+  }
+
   getType(): GraphQLPartyType {
     return this.type;
   }
 
+  setOpts(opts: MetadataFieldOpts): void {
+    this.opts = opts;
+  }
+
   getOpts(): MetadataFieldOpts {
     return this.opts;
+  }
+
+  setParams(params: MetadataParam[]): void {
+    this.params = params || [];
   }
 
   getParams(): MetadataParam[] {
@@ -42,6 +55,12 @@ export class MetadataField {
   getDescription(): string {
     return this.opts && this.opts.description
       ? this.opts.description
+      : undefined;
+  }
+
+  getResolverTargetInstance(): Object {
+    return this.opts.resolverTarget
+      ? getFromContainer(this.opts.resolverTarget)
       : undefined;
   }
 

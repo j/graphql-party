@@ -1,27 +1,29 @@
-import { addMutationField } from '../metadata';
+import { addFieldToObjectTypeMetadata } from '../metadata';
 import { isStaticFunction } from '../utilities/isStatic';
 import { GraphQLPartyType } from '../types';
 
-interface MutationOpts {
+interface FieldResolverOpts {
   name?: string;
   description?: string;
 }
 
-export function Mutation(
+export function FieldResolver(
+  ObjectTypeClass: any,
   type: GraphQLPartyType,
-  opts: MutationOpts = {}
+  opts: FieldResolverOpts = {}
 ): Function {
   return function(target: any, methodName: string, descriptor: any): void {
     const fieldName = opts.name || methodName;
 
     if (!descriptor) {
-      throw new Error('@Mutation must be a valid function.');
+      throw new Error('@FieldResolver must be a function.');
     }
 
-    addMutationField(target, fieldName, type, {
+    addFieldToObjectTypeMetadata(ObjectTypeClass.prototype, fieldName, type, {
       descriptor,
       propertyOrMethodName: methodName,
       isStaticFunction: isStaticFunction(target, methodName, descriptor),
+      resolverTarget: target.constructor,
       description: opts.description,
     });
   };
