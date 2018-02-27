@@ -5,7 +5,6 @@ import {
   GraphQLObjectTypeConfig,
   GraphQLInputObjectTypeConfig,
 } from 'graphql';
-import { get } from 'lodash';
 import {
   OBJECT_TYPE_KEY,
   OBJECT_QUERY_TYPE_KEY,
@@ -30,6 +29,20 @@ export interface MetadataParam {
   type?: GraphQLPartyType;
 }
 
+function getArg(oldArgs: any[], index: Number, field?): any {
+  if (!oldArgs || typeof oldArgs[index] === 'undefined') {
+    return null;
+  }
+
+  if (!field) {
+    return oldArgs[index];
+  }
+
+  return typeof oldArgs[index][field] !== 'undefined'
+    ? oldArgs[index][field]
+    : null;
+}
+
 function getArgs(field, origArgs) {
   const params = field.getParams();
   let args: Array<any> = origArgs;
@@ -42,10 +55,10 @@ function getArgs(field, origArgs) {
     params.forEach(({ paramType, paramIndex, field }) => {
       switch (paramType) {
         case ParamTypes.Arg:
-          args[paramIndex] = !field ? oldArgs[1] : get(oldArgs[1], field);
+          args[paramIndex] = getArg(oldArgs, 1, field);
           break;
         case ParamTypes.Context:
-          args[paramIndex] = !field ? oldArgs[2] : get(oldArgs[2], field);
+          args[paramIndex] = getArg(oldArgs, 2, field);
           break;
       }
     });
