@@ -4,25 +4,19 @@ import { Entity, EntityRepository, EntityManager, getCustomRepository, ObjectID,
 import * as faker from 'faker';
 import { ObjectType, InputType, Query, Mutation, Arg, Context, Field, Types, setInstance, buildSchema } from '../../src';
 
-@InputType()
-class UserInput {
-  @Field(Types.NonNullable(Types.String))
-  firstName: string;
-
-  @Field(Types.NonNullable(Types.String))
-  lastName: string;
-}
-
 @Entity()
 @ObjectType()
 class User {
-  @ObjectIdColumn() @Field(Types.String)
+  @ObjectIdColumn()
+  @Field(Types.String)
   id: ObjectID;
 
-  @Column() @Field(Types.String)
+  @Column()
+  @Field(Types.String)
   firstName: string;
 
-  @Column() @Field(Types.String)
+  @Column()
+  @Field(Types.String)
   lastName: string;
 
   @Column()
@@ -44,6 +38,14 @@ class User {
   };
 }
 
+@InputType()
+class UserInput {
+  @Field(Types.NonNullable(Types.String))
+  firstName: string;
+
+  @Field(Types.NonNullable(Types.String))
+  lastName: string;
+}
 
 @EntityRepository()
 class UserRepository {
@@ -63,10 +65,8 @@ class UserRepository {
   }
 
   @Mutation(User)
-  async createUser(@Arg('input', Types.NonNullable(UserInput)) { firstName, lastName }: UserInput) {
-    const user = await this.manager.create(User, { firstName, lastName });
-
-    return this.manager.save(user);
+  async createUser(@Arg('input', Types.NonNullable(UserInput)) input: UserInput) {
+    return this.manager.save(await this.manager.create(User, input));
   }
 
   @Query(Types.List(User))
@@ -87,9 +87,9 @@ class UserRepository {
   }
 }
 
-const mongod = new MongoMemoryServer();
+(async function start() {
+  const mongod = new MongoMemoryServer();
 
-(async function boot() {
   await createConnection({
     type: 'mongodb',
     url: await mongod.getConnectionString(),
