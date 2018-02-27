@@ -9,6 +9,7 @@ import { GraphQLPartyType } from '../types';
 export interface MetadataFieldOpts {
   resolve?: Function;
   isStaticFunction?: boolean;
+  descriptor?: any;
   methodName?: string;
   propertyName?: string;
   description?: string;

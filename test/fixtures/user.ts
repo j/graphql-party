@@ -20,7 +20,7 @@ export class User {
   @Field(Types.String) lastName: string;
 
   @Field(Types.String)
-  fullName(): Promise<string> {
+  fullName(): string {
     return `${this.firstName} ${this.lastName}`;
   }
 
