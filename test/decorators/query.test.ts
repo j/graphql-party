@@ -38,7 +38,6 @@ describe('@Query()', () => {
       assert.equal(metadata.getKey(), OBJECT_QUERY_TYPE_KEY);
       assert.equal(metadata.getType(), GraphQLObjectType);
       assert.hasAllKeys(metadata.getFields(), [fieldName]);
-      assert.lengthOf(metadata.getTargetInstanceArgs(), 0);
 
       // name is always undefined for Queries/Mutations
       assert.isUndefined(metadata.getName());

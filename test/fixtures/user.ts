@@ -19,10 +19,10 @@ export class User {
 
   @Field(Types.String) lastName: string;
 
-  @Field(Types.String, {
-    resolve: user => `${user.firstName} ${user.lastName}`,
-  })
-  fullName: string;
+  @Field(Types.String)
+  fullName(): Promise<string> {
+    return `${this.firstName} ${this.lastName}`;
+  }
 
   @Field(GraphQLDateTime) createdAt: Date;
 

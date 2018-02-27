@@ -15,6 +15,7 @@ export function Mutation(
     const fieldName = opts.name || methodName;
 
     addMutationField(target, fieldName, type, {
+      descriptor,
       methodName,
       isStaticFunction: isStaticFunction(target, methodName, descriptor),
       description: opts.description,

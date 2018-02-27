@@ -3,6 +3,7 @@ import { assert } from 'chai';
 import { Mutation, Types, typeFromClassWithMutations } from '../../src';
 import { getMutationObjectTypeMetadata } from '../../src/metadata';
 import { execMutation } from '../helpers';
+import { setInstance } from '../../src/container';
 
 describe('@Mutation()', () => {
   it('calls handler', async () => {
@@ -97,7 +98,7 @@ describe('@Mutation()', () => {
     }
 
     const mutationType = typeFromClassWithMutations([
-      [CowRepository, ['brown']],
+      setInstance(CowRepository, new CowRepository('brown')),
     ]);
 
     const result = await execMutation(
@@ -132,7 +133,7 @@ describe('@Mutation()', () => {
     }
 
     const mutationType = typeFromClassWithMutations([
-      [CowRepository, ['brown']],
+      setInstance(CowRepository, new CowRepository('brown')),
     ]);
 
     const result = await execMutation(

@@ -82,22 +82,10 @@ function buildType(
   let hasFields = false;
   let fields = {};
 
-  classesWithMetadata.forEach(ClassWithMetadataOrArray => {
-    let ClassWithMetadata = ClassWithMetadataOrArray;
-    let args = [];
-
-    if (Array.isArray(ClassWithMetadataOrArray)) {
-      ClassWithMetadata = ClassWithMetadataOrArray[0];
-      args = ClassWithMetadataOrArray[1];
-    }
-
+  classesWithMetadata.forEach(ClassWithMetadata => {
     const meta = getMetadataFn(ClassWithMetadata);
 
     if (meta) {
-      if (args.length) {
-        meta.setTargetInstanceAgs(args);
-      }
-
       hasFields = true;
 
       fields = {

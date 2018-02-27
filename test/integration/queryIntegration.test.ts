@@ -1,8 +1,21 @@
 import 'mocha';
 import { assert } from 'chai';
-import { Query, Types, typeFromClassWithQueries } from '../../src';
+import { Container, Inject, Service } from 'typedi';
 import { getQueryObjectTypeMetadata } from '../../src/metadata';
 import { execQuery } from '../helpers';
+import * as fixtures from '../fixtures/user';
+import { printSchema, graphql } from 'graphql';
+import {
+  Query,
+  ObjectType,
+  Types,
+  Field,
+  Arg,
+  Context,
+  buildSchema,
+  typeFromClassWithQueries,
+} from '../../src';
+import { setInstance, useContainer } from '../../src/container';
 
 describe('@Query()', () => {
   it('calls handler', async () => {
@@ -94,7 +107,9 @@ describe('@Query()', () => {
       }
     }
 
-    const queryType = typeFromClassWithQueries([[CowRepository, ['brown']]]);
+    setInstance(CowRepository, new CowRepository('brown'));
+
+    const queryType = typeFromClassWithQueries([CowRepository]);
 
     const result = await execQuery(
       queryType,
@@ -129,7 +144,9 @@ describe('@Query()', () => {
       }
     }
 
-    const queryType = typeFromClassWithQueries([[CowRepository, ['brown']]]);
+    setInstance(CowRepository, new CowRepository('brown'));
+
+    const queryType = typeFromClassWithQueries([CowRepository]);
 
     const result = await execQuery(
       queryType,

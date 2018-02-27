@@ -17,7 +17,6 @@ describe('@ObjectType()', () => {
     assert.equal(metadata.getKey(), OBJECT_TYPE_KEY);
     assert.equal(metadata.getType(), GraphQLObjectType);
     assert.isEmpty(metadata.getFields());
-    assert.lengthOf(metadata.getTargetInstanceArgs(), 0);
     assert.equal(metadata.getName(), 'Article');
     assert.isUndefined(metadata.getObjectType());
   });
@@ -33,7 +32,6 @@ describe('@ObjectType()', () => {
     assert.equal(metadata.getKey(), OBJECT_TYPE_KEY);
     assert.equal(metadata.getType(), GraphQLObjectType);
     assert.isEmpty(metadata.getFields());
-    assert.lengthOf(metadata.getTargetInstanceArgs(), 0);
     assert.equal(metadata.getName(), 'Article');
     assert.isUndefined(metadata.getObjectType());
   });

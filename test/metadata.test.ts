@@ -3,6 +3,7 @@ import { assert } from 'chai';
 import * as graphql from 'graphql';
 import * as metadata from '../src/metadata';
 import { GraphQLObjectType, GraphQLObjectTypeConfig } from 'graphql';
+import { setInstance } from '../src/container';
 
 describe('metadata', () => {
   describe('addFieldToObjectTypeMetadata()', () => {
@@ -211,7 +212,7 @@ describe('metadata', () => {
       assert.equal(constructorCalledCount, 1);
     });
 
-    it('createInstance() creates with arguments', () => {
+    it('createInstance() creates from container with defined instance', () => {
       let constructorCalledCount = 0;
 
       class AnimalRepository {
@@ -225,16 +226,15 @@ describe('metadata', () => {
         }
       }
 
-      const meta = new metadata.Metadata(AnimalRepository);
-      meta.setTargetInstanceAgs(['world', 'hello']);
+      const expectedAnimalRepository = new AnimalRepository('hello', 'world');
+      setInstance(AnimalRepository, expectedAnimalRepository);
 
-      assert.equal(constructorCalledCount, 0);
+      const meta = new metadata.Metadata(AnimalRepository);
 
       const animalRepository1 = <AnimalRepository>meta.getTargetInstance();
 
       assert.instanceOf(animalRepository1, AnimalRepository);
-      assert.equal(animalRepository1.hello, 'world');
-      assert.equal(animalRepository1.world, 'hello');
+      assert.equal(animalRepository1, expectedAnimalRepository);
       assert.equal(constructorCalledCount, 1);
     });
   });

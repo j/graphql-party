@@ -16,6 +16,7 @@ export function Query(type: GraphQLPartyType, opts: QueryOpts = {}): Function {
     const fieldName = opts.name || methodName;
 
     addQueryField(target, fieldName, type, {
+      descriptor,
       methodName,
       isStaticFunction: isStaticFunction(target, methodName, descriptor),
       description: opts.description,

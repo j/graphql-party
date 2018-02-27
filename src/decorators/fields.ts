@@ -9,7 +9,7 @@ interface FieldOpts {
 }
 
 export function Field(type: GraphQLPartyType, opts: FieldOpts = {}): Function {
-  return function(target: any, propertyName: string): void {
+  return function(target: any, propertyName: string, descriptor: any): void {
     const fieldName = opts.name || propertyName;
 
     if (isStaticProperty(target, propertyName)) {
@@ -17,6 +17,7 @@ export function Field(type: GraphQLPartyType, opts: FieldOpts = {}): Function {
     }
 
     addFieldToObjectTypeMetadata(target, fieldName, type, {
+      descriptor,
       propertyName,
       isStaticFunction: false,
       resolve: opts.resolve,

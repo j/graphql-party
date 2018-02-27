@@ -15,6 +15,7 @@ import {
 import { MetadataFieldOpts } from './metadataField';
 import { ParamTypes } from '../decorators/params';
 import { GraphQLPartyType } from '../types';
+import { getFromContainer } from '../container';
 
 export interface GraphQLObjectOrInputTypeCtor {
   new (
@@ -29,15 +30,43 @@ export interface MetadataParam {
   type?: GraphQLPartyType;
 }
 
-function getResolverForField(field: MetadataField): Function | undefined {
-  const opts = field.getOpts();
+function getArgs(field, origArgs) {
+  const params = field.getParams();
+  let args: Array<any> = origArgs;
 
-  if (!opts || !opts.resolve) {
+  if (params.length) {
+    const oldArgs = args;
+
+    args = [];
+
+    params.forEach(({ paramType, paramIndex, field }) => {
+      switch (paramType) {
+        case ParamTypes.Arg:
+          args[paramIndex] = !field ? oldArgs[1] : get(oldArgs[1], field);
+          break;
+        case ParamTypes.Context:
+          args[paramIndex] = !field ? oldArgs[2] : get(oldArgs[2], field);
+          break;
+      }
+    });
+  }
+
+  return args;
+}
+
+function getResolverForField(field: MetadataField): Function | undefined {
+  const opts = field.getOpts() || {};
+
+  const resolver =
+    opts.resolve || (opts.descriptor ? opts.descriptor.value : undefined);
+
+  // no need for a resolver if it's not a function or there are no params
+  if (!resolver && !field.getParams().length) {
     return undefined;
   }
 
-  return function(): any {
-    return opts.resolve.apply(undefined, Object.values(arguments));
+  return function(...args): any {
+    return resolver.apply(args[0], getArgs(field, args));
   };
 }
 
@@ -49,28 +78,11 @@ function getResolverForQueryOrMutation(
     ? meta.getTarget()
     : meta.getTargetInstance();
 
-  return function(): any {
-    const params = field.getParams();
-    let args: Array<any> = Object.values(arguments);
-
-    if (params.length) {
-      const oldArgs = args;
-
-      args = [];
-
-      params.forEach(({ paramType, paramIndex, field }) => {
-        switch (paramType) {
-          case ParamTypes.Arg:
-            args[paramIndex] = !field ? oldArgs[1] : get(oldArgs[1], field);
-            break;
-          case ParamTypes.Context:
-            args[paramIndex] = !field ? oldArgs[2] : get(oldArgs[2], field);
-            break;
-        }
-      });
-    }
-
-    return instance[field.getOpts().methodName].apply(instance, args);
+  return function(...args): any {
+    return instance[field.getOpts().methodName].apply(
+      instance,
+      getArgs(field, args)
+    );
   };
 }
 
@@ -81,8 +93,6 @@ export class Metadata {
   private Type: GraphQLObjectOrInputTypeCtor;
   private objectType: GraphQLObjectType | GraphQLInputObjectType;
   private fields: { [fieldName: string]: MetadataField };
-  private instance?: Object;
-  private targetInstanceArgs?: any;
   private description?: string;
 
   public static getOrCreateInstance(
@@ -103,7 +113,6 @@ export class Metadata {
     this.key = key;
     this.Type = GraphQLObjectType;
     this.fields = {};
-    this.targetInstanceArgs = [];
     this.name = undefined;
     this.objectType = undefined;
     this.description = undefined;
@@ -129,14 +138,6 @@ export class Metadata {
 
   getTarget(): any {
     return this.target;
-  }
-
-  setTargetInstanceAgs(args: any[]) {
-    this.targetInstanceArgs = args;
-  }
-
-  getTargetInstanceArgs() {
-    return this.targetInstanceArgs;
   }
 
   getKey(): Symbol {
@@ -220,11 +221,7 @@ export class Metadata {
   }
 
   getTargetInstance(): Object {
-    if (!this.instance) {
-      this.instance = new this.target(...this.targetInstanceArgs);
-    }
-
-    return this.instance;
+    return getFromContainer(this.target);
   }
 
   createType(fields: any): GraphQLObjectType | GraphQLInputObjectType {
