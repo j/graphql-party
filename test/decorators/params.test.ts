@@ -211,6 +211,39 @@ describe('@Arg()', () => {
       },
     });
   });
+
+  it('passes original args after decorated args', async () => {
+    let calledWithArgs = [];
+    class HelloWorld {
+      @Query(Types.String)
+      public hello(
+        @Arg('hi', Types.String)
+        hello: string,
+        obj,
+        args,
+        context
+      ): string {
+        calledWithArgs = Object.values(arguments);
+
+        return `${hello} ${context.world}`;
+      }
+    }
+
+    const schema = buildSchema(HelloWorld);
+
+    const result = await graphql(schema, 'query { hello(hi: "hello") }', null, {
+      world: 'world',
+    });
+
+    assert.lengthOf(calledWithArgs, 5);
+    assert.equal(calledWithArgs[0], 'hello');
+    assert.equal(calledWithArgs[1], null);
+    assert.deepEqual(calledWithArgs[2], { hi: 'hello' });
+    assert.deepEqual(calledWithArgs[3], { world: 'world' });
+    assert.equal(calledWithArgs[4].fieldName, 'hello');
+
+    assert.deepEqual(result, { data: { hello: 'hello world' } });
+  });
 });
 
 describe('@Context()', () => {
@@ -282,5 +315,56 @@ describe('@Context()', () => {
     });
 
     assert.deepEqual(result, { data: { hello: 'world' } });
+  });
+
+  it('passes original args after decorated args', async () => {
+    let calledWithArgs = [];
+    class HelloWorld {
+      @Query(Types.String)
+      public hello(
+        @Context('hello') hello: string,
+        obj,
+        args,
+        context
+      ): string {
+        calledWithArgs = Object.values(arguments);
+
+        return `${hello} ${context.world}`;
+      }
+    }
+
+    const queryMetadata = Reflect.getOwnMetadataKeys(HelloWorld);
+    const keyMetadata = Reflect.getMetadata(
+      PARAM_METADATA_KEY,
+      HelloWorld.prototype,
+      'hello'
+    );
+
+    assert.lengthOf(queryMetadata, 1);
+    assert.isTrue(queryMetadata.includes(OBJECT_QUERY_TYPE_KEY));
+    assert.deepEqual(keyMetadata, [
+      {
+        paramType: '@Context',
+        paramIndex: 0,
+        field: 'hello',
+        type: undefined,
+      },
+    ]);
+
+    const schema = buildSchema(HelloWorld);
+
+    const result = await graphql(schema, 'query { hello }', null, {
+      hello: 'hello',
+      world: 'world',
+    });
+
+    assert.lengthOf(calledWithArgs, 5);
+    assert.equal(calledWithArgs[0], 'hello');
+    assert.equal(calledWithArgs[1], null);
+    assert.deepEqual(calledWithArgs[2], {});
+    assert.deepEqual(calledWithArgs[3], { hello: 'hello', world: 'world' });
+    assert.equal(calledWithArgs[4].fieldName, 'hello');
+
+    assert.deepEqual(result, { data: { hello: 'hello world' } });
   });
 });

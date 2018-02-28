@@ -64,7 +64,7 @@ function getArgs(field, origArgs) {
     });
   }
 
-  return args;
+  return [...args, ...origArgs];
 }
 
 function getResolverForField(field: MetadataField): Function | undefined {
@@ -79,10 +79,6 @@ function getResolverForField(field: MetadataField): Function | undefined {
   }
 
   const resolverTargetInstance = field.getResolverTargetInstance();
-
-  if (field.getFieldName() === 'bestFriends') {
-    console.log(field.getFieldName(), field.getParams());
-  }
 
   return function(...args): any {
     return resolver.apply(
