@@ -43,7 +43,7 @@ describe('@FieldResolver()', () => {
     assert.typeOf(opts.descriptor.value, 'function');
     assert.equal(opts.propertyOrMethodName, 'comments');
     assert.isFalse(opts.isStaticFunction);
-    assert.equal(opts.resolverTarget, ArticleRepository);
+    assert.equal(opts.resolverTarget.constructor, ArticleRepository);
     assert.isUndefined(opts.description);
   });
 
@@ -83,7 +83,7 @@ describe('@FieldResolver()', () => {
     assert.typeOf(opts.descriptor.value, 'function');
     assert.equal(opts.propertyOrMethodName, 'getComments');
     assert.isFalse(opts.isStaticFunction);
-    assert.equal(opts.resolverTarget, ArticleRepository);
+    assert.equal(opts.resolverTarget.constructor, ArticleRepository);
     assert.isUndefined(opts.description);
   });
 
@@ -125,22 +125,23 @@ describe('@FieldResolver()', () => {
     assert.typeOf(opts.descriptor.value, 'function');
     assert.equal(opts.propertyOrMethodName, 'getComments');
     assert.isFalse(opts.isStaticFunction);
-    assert.equal(opts.resolverTarget, ArticleRepository);
+    assert.equal(opts.resolverTarget.constructor, ArticleRepository);
     assert.equal(opts.description, 'Gets a list of comments.');
   });
 
-  // it('decorates with name', () => {
-  //   @ObjectType({ name: 'Article' })
-  //   class ArticleModel {}
-  //
-  //   const metadata = Reflect.getMetadata(OBJECT_TYPE_KEY, ArticleModel);
-  //
-  //   assert.instanceOf(metadata, Metadata);
-  //   assert.equal(metadata.getTarget(), ArticleModel);
-  //   assert.equal(metadata.getKey(), OBJECT_TYPE_KEY);
-  //   assert.equal(metadata.getType(), GraphQLObjectType);
-  //   assert.isEmpty(metadata.getFields());
-  //   assert.equal(metadata.getName(), 'Article');
-  //   assert.isUndefined(metadata.getObjectType());
-  // });
+  it('does not allow static fields', () => {
+    assert.throws(() => {
+      @ObjectType()
+      class Article {}
+      @ObjectType()
+      class Comment {}
+
+      class ArticleRepository {
+        @FieldResolver(Article, Types.List(Comment))
+        static async comments(): Promise<Comment[]> {
+          return new Promise<Comment[]>(resolve => resolve([new Comment()]));
+        }
+      }
+    }, 'Static @FieldResolver is not supported.');
+  });
 });

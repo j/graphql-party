@@ -29,7 +29,10 @@ function createAddFieldFn(key: Symbol) {
 
     let params;
     if (opts.descriptor) {
-      params = getFieldParamMetadata(target, opts.propertyOrMethodName);
+      params = getFieldParamMetadata(
+        opts.resolverTarget || target,
+        opts.propertyOrMethodName
+      );
     }
 
     meta.addField(new MetadataField(fieldName, type, opts, params));

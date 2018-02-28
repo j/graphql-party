@@ -58,10 +58,16 @@ export class MetadataField {
       : undefined;
   }
 
-  getResolverTargetInstance(): Object {
-    return this.opts.resolverTarget
-      ? getFromContainer(this.opts.resolverTarget)
-      : undefined;
+  getResolverTargetInstance(): Object | boolean {
+    const { resolverTarget, isStaticFunction } = this.opts;
+
+    if (!resolverTarget) {
+      return false;
+    }
+
+    return getFromContainer(
+      isStaticFunction ? resolverTarget : resolverTarget.constructor
+    );
   }
 
   isResolverStaticFunction() {

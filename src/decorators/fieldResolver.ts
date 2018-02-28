@@ -19,11 +19,15 @@ export function FieldResolver(
       throw new Error('@FieldResolver must be a function.');
     }
 
+    if (isStaticFunction(target, methodName, descriptor)) {
+      throw new Error('Static @FieldResolver is not supported.');
+    }
+
     addFieldToObjectTypeMetadata(ObjectTypeClass.prototype, fieldName, type, {
       descriptor,
       propertyOrMethodName: methodName,
       isStaticFunction: isStaticFunction(target, methodName, descriptor),
-      resolverTarget: target.constructor,
+      resolverTarget: target,
       description: opts.description,
     });
   };
