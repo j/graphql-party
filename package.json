@@ -47,6 +47,7 @@
     "typescript": "^2.7.1"
   },
   "dependencies": {
+    "globby": "^8.0.1",
     "reflect-metadata": "^0.1.12",
     "require-glob": "^3.2.0"
   },

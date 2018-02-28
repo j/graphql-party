@@ -52,7 +52,7 @@ describe('container', () => {
 
     useContainer(AnimalService, Container);
 
-    const schema = buildSchema(Animal, AnimalService);
+    const schema = buildSchema([Animal, AnimalService]);
 
     const result = await graphql(
       schema,
@@ -110,7 +110,7 @@ describe('container', () => {
 
     setContainer(Container);
 
-    const schema = buildSchema(Animal, AnimalService);
+    const schema = buildSchema([Animal, AnimalService]);
 
     const result = await graphql(
       schema,
@@ -166,7 +166,7 @@ describe('container', () => {
 
     setInstance(AnimalService, new AnimalService(new AnimalRepository()));
 
-    const schema = buildSchema(Animal, AnimalService);
+    const schema = buildSchema([Animal, AnimalService]);
 
     const result = await graphql(
       schema,

@@ -5,6 +5,8 @@ import {
   GraphQLSchema,
 } from 'graphql';
 import { sync as requireGlobSync } from 'require-glob';
+import * as path from 'path';
+import * as globby from 'globby';
 import {
   getMutationObjectTypeMetadata,
   getObjectTypeMetadata,
@@ -198,17 +200,18 @@ function isPotentialTarget(
   return { isObjectType, isQuery, isMutation, isPotential };
 }
 
-export function buildSchema(
-  opts: { classes: any[] } | any = { classes: [] },
-  ...others: any[]
-): GraphQLSchema {
+export function buildSchema(classesOrGlobs: any[]): GraphQLSchema {
   const queryObjects = [];
   const mutationObjects = [];
 
+  const potentialTargets = [];
   const globs = [];
-  let targets = [];
 
-  (opts.classes ? opts.classes : [...arguments]).forEach(target => {
+  if (!Array.isArray(classesOrGlobs)) {
+    classesOrGlobs = [classesOrGlobs];
+  }
+
+  classesOrGlobs.forEach(target => {
     if (typeof target === 'string') {
       globs.push(target);
 
@@ -216,25 +219,26 @@ export function buildSchema(
     }
 
     if (isClass(target)) {
-      targets.push(target);
+      potentialTargets.push(target);
     }
   });
 
   if (globs.length) {
-    const modules = requireGlobSync(globs);
+    const cwd = process.cwd();
+    const files = globby.sync(globs.map(glob => path.join(cwd, glob)));
 
-    Object.values(modules)
-      .map(Object.values)
-      .forEach(potentialTargets => {
-        potentialTargets.forEach(target => {
-          if (isClass(target)) {
-            targets.push(target);
-          }
-        });
+    files.forEach(file => {
+      const module = require(file);
+
+      Object.values(module).forEach(target => {
+        if (isClass(target)) {
+          potentialTargets.push(target);
+        }
       });
+    });
   }
 
-  targets.forEach(target => {
+  potentialTargets.forEach(target => {
     const {
       isObjectType,
       isQuery,

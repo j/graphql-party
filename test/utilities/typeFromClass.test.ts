@@ -131,25 +131,21 @@ describe('typeFromClass.ts', () => {
   });
 
   describe('buildSchema()', () => {
-    it('creates a schema', () => {
-      const schema = buildSchema({
-        classes: [User, UserQueries, UserMutations, UserInput],
-      });
+    it('creates a schema using arrays', () => {
+      const schema = buildSchema([User, UserQueries, UserMutations, UserInput]);
 
       assert.equal(graphql.printSchema(schema), expectedUserSchema);
     });
 
-    it('creates a schema from a glob', () => {
-      const schema = buildSchema(`${__dirname}/../fixtures/user.ts`);
+    it('creates a schema from a single glob', () => {
+      const schema = buildSchema(`./test/fixtures/user.ts`);
 
       assert.equal(graphql.printSchema(schema), expectedUserSchema);
     });
 
     it('fails on invalid classes', () => {
       assert.throws(() => {
-        buildSchema({
-          classes: [User, UserQueries, InvalidObjectTypeWithMutations],
-        });
+        buildSchema([User, UserQueries, InvalidObjectTypeWithMutations]);
       }, 'Fields "invalidMutation1", "invalidMutation2" must be static if they belong to an @ObjectType.');
     });
   });
