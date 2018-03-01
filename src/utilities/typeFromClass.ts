@@ -4,7 +4,6 @@ import {
   isType,
   GraphQLSchema,
 } from 'graphql';
-import { sync as requireGlobSync } from 'require-glob';
 import * as path from 'path';
 import * as globby from 'globby';
 import {
