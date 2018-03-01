@@ -2,7 +2,7 @@ import 'mocha';
 import { assert } from 'chai';
 import * as globby from 'globby';
 import * as path from 'path';
-import { graphql } from 'graphql';
+import { graphql, GraphQLSchema } from 'graphql';
 import * as data from '../examples/data';
 
 const files = globby.sync(
@@ -12,14 +12,22 @@ const schemas = files.map(file => require(file));
 
 schemas.forEach(({ name, prepare }) => {
   describe(`Example "${name}"`, () => {
-    let context;
-    let schema;
+    let context: any;
+    let schema: GraphQLSchema;
+    let teardown: Function;
 
     before(async () => {
       const prepared = await prepare({ users: data.users() });
 
       context = prepared.context;
       schema = prepared.schema;
+      teardown = prepared.teardown;
+
+      return;
+    });
+
+    after(async () => {
+      await teardown();
     });
 
     it(`has valid "users" query`, async () => {
@@ -42,7 +50,7 @@ schemas.forEach(({ name, prepare }) => {
       const result = await graphql({
         source,
         schema,
-        context,
+        contextValue: context,
       });
 
       assert.deepEqual(result, {
@@ -93,7 +101,7 @@ schemas.forEach(({ name, prepare }) => {
       const result = await graphql({
         source,
         schema,
-        context,
+        contextValue: context,
         variableValues: {
           input: {
             firstName: 'John John',

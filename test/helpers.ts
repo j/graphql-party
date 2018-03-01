@@ -5,13 +5,13 @@ import {
   GraphQLString,
 } from 'graphql';
 
-export async function execQuery(queryType, str) {
+export async function execQuery(queryType, str): Promise<any> {
   const schema = new GraphQLSchema({ query: queryType });
 
-  return graphql(schema, str);
+  return await graphql(schema, str);
 }
 
-export async function execMutation(mutationType, str) {
+export async function execMutation(mutationType, str): Promise<any> {
   const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
       name: 'Query',
@@ -22,5 +22,5 @@ export async function execMutation(mutationType, str) {
     mutation: mutationType,
   });
 
-  return graphql(schema, str);
+  return await graphql(schema, str);
 }

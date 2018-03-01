@@ -2,7 +2,7 @@ import { addFieldToObjectTypeMetadata } from '../metadata';
 import { isStatic } from '../utilities/isStatic';
 import { GraphQLPartyType } from '../types';
 
-interface FieldOpts {
+export interface FieldOpts {
   name?: string;
   resolve?: Function;
   description?: string;

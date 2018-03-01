@@ -117,6 +117,7 @@ describe('typeFromClass.ts', () => {
   describe('assertValidTarget()', () => {
     it('errors when @ObjectType contains @Query fields that are not static', () => {
       assert.throws(
+        // ts-ignore
         () => buildSchema(InvalidObjectTypeWithQueries),
         'Fields "invalidQuery1", "invalidQuery2" must be static if they belong to an @ObjectType.'
       );
@@ -124,6 +125,7 @@ describe('typeFromClass.ts', () => {
 
     it('errors when @ObjectType contains @Mutation fields that are not static', () => {
       assert.throws(
+        // ts-ignore
         () => buildSchema(InvalidObjectTypeWithMutations),
         'Fields "invalidMutation1", "invalidMutation2" must be static if they belong to an @ObjectType.'
       );

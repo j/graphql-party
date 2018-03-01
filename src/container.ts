@@ -1,8 +1,8 @@
 const CONTAINER_METADATA_KEY = Symbol('Container');
 
-type targetCtor<T> = { new (...args: any[]): T };
+export type targetCtor<T> = { new (...args: any[]): T };
 
-type containerType = {
+export type containerType = {
   get(target: any): any;
   get<T>(target: targetCtor<T>): T;
   set?<T>(target: targetCtor<T>, object: T): void;

@@ -1,7 +1,7 @@
 import * as graphql from 'graphql';
 import { Metadata } from '../metadata';
 
-type TypeConstructorReturnType = graphql.GraphQLType;
+export type TypeConstructorReturnType = graphql.GraphQLType;
 
 function create(
   wrappedType: WrappedType,

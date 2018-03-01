@@ -2,7 +2,7 @@ import { addQueryField } from '../metadata';
 import { isStaticFunction } from '../utilities/isStatic';
 import { GraphQLPartyType } from '../types';
 
-interface QueryOpts {
+export interface QueryOpts {
   name?: string;
   description?: string;
 }

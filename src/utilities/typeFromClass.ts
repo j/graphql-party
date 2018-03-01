@@ -201,7 +201,7 @@ function isPotentialTarget(
 }
 
 export function buildSchema(
-  classesOrGlobs: any[],
+  classesOrGlobs: any[] | any,
   config: { cwd: string } = { cwd: process.cwd() }
 ): GraphQLSchema {
   const queryObjects = [];

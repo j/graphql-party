@@ -2,7 +2,7 @@
   "name": "graphql-party",
   "version": "1.0.0-alpha1",
   "description": "A @decorator based GraphQL schema builder.",
-  "main": "index.js",
+  "main": "dist/src/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/j/graphql-party.git"
@@ -10,6 +10,8 @@
   "author": "Jordan Stout",
   "license": "MIT",
   "scripts": {
+    "prepublish": "npm run build",
+    "build": "rm -rf dist && tsc -d",
     "test": "nyc mocha",
     "test:watch": "mocha --watch-extensions ts --watch",
     "pretty": "prettier --write 'src/**/*.ts' --write 'test/**/*.ts'",

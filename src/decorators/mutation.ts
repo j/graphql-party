@@ -2,7 +2,7 @@ import { addMutationField } from '../metadata';
 import { isStaticFunction } from '../utilities/isStatic';
 import { GraphQLPartyType } from '../types';
 
-interface MutationOpts {
+export interface MutationOpts {
   name?: string;
   description?: string;
 }

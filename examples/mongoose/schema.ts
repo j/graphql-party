@@ -23,6 +23,9 @@ export async function prepare(fixtures: { users: any[] } = { users: [] }) {
   return {
     schema: buildSchema('./{models,services}/*.ts', { cwd: __dirname }),
     context: {},
-    teardown: async () => {},
+    teardown: async () => {
+      await connection.close();
+      await mongod.stop();
+    },
   };
 }
