@@ -224,6 +224,10 @@ asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
 
+await-delay@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/await-delay/-/await-delay-1.0.0.tgz#a74ab0eaa880cd38e100cf1f8d8418d44cab1b4d"
+
 aws-lambda@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/aws-lambda/-/aws-lambda-0.1.2.tgz#19b1585075df31679597b976a5f1def61f12ccee"

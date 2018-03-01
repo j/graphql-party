@@ -200,7 +200,10 @@ function isPotentialTarget(
   return { isObjectType, isQuery, isMutation, isPotential };
 }
 
-export function buildSchema(classesOrGlobs: any[]): GraphQLSchema {
+export function buildSchema(
+  classesOrGlobs: any[],
+  config: { cwd: string } = { cwd: process.cwd() }
+): GraphQLSchema {
   const queryObjects = [];
   const mutationObjects = [];
 
@@ -224,8 +227,7 @@ export function buildSchema(classesOrGlobs: any[]): GraphQLSchema {
   });
 
   if (globs.length) {
-    const cwd = process.cwd();
-    const files = globby.sync(globs.map(glob => path.join(cwd, glob)));
+    const files = globby.sync(globs.map(glob => path.join(config.cwd, glob)));
 
     files.forEach(file => {
       const module = require(file);

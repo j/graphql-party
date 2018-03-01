@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@types/mongoose": "^5.0.3",
+    "await-delay": "^1.0.0",
     "faker": "^4.1.0",
     "graphql-yoga": "^1.4.3",
     "mongodb-memory-server": "^1.7.0",
