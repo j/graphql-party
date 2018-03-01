@@ -10,7 +10,7 @@
   "author": "Jordan Stout",
   "license": "MIT",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepublish": "yarn run build",
     "build": "rm -rf dist && tsc -d",
     "test": "nyc mocha",
     "test:watch": "mocha --watch-extensions ts --watch",
