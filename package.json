@@ -1,6 +1,6 @@
 {
   "name": "graphql-party",
-  "version": "1.0.0-preview",
+  "version": "1.0.0-alpha1",
   "description": "A @decorator based GraphQL schema builder.",
   "main": "index.js",
   "repository": {
