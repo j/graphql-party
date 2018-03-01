@@ -14,9 +14,7 @@
     "test:watch": "mocha --watch-extensions ts --watch",
     "pretty": "prettier --write 'src/**/*.ts' --write 'test/**/*.ts'",
     "precommit": "pretty-quick --staged",
-    "postcommit": "git diff --name-only HEAD^ | xargs git add",
-    "example:simple": "node-dev -r ts-node/register examples/simple/app.ts",
-    "example:typeorm": "node-dev -r ts-node/register examples/typeorm/app.ts"
+    "postcommit": "git diff --name-only HEAD^ | xargs git add"
   },
   "nyc": {
     "extension": [".ts"],
