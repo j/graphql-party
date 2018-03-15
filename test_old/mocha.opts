@@ -1,4 +1,5 @@
 --require ts-node/register
 --require source-map-support/register
 --recursive
-./test/**/*.test.ts
+./test/**/bootstrap.test.ts
+./test/**/field.test.ts

@@ -5,17 +5,13 @@ import {
 } from 'graphql';
 import * as path from 'path';
 import * as globby from 'globby';
-import {
-  getMutationObjectTypeMetadata,
-  getObjectTypeMetadata,
-  getQueryObjectTypeMetadata,
-  Metadata,
-  GraphQLObjectOrInputTypeCtor,
-  OBJECT_TYPE_KEY,
-  OBJECT_QUERY_TYPE_KEY,
-  OBJECT_MUTATION_TYPE_KEY,
-} from '../metadata';
 import { GraphQLDate, GraphQLTime, GraphQLDateTime } from 'graphql-iso-date';
+import { ClassMetadata, classMetadataManager } from '../mapping/ClassMetadata';
+import {
+  FieldMetadata,
+  fieldMetadataManager,
+  FIELD_METADATA_KEY,
+} from '../mapping/FieldMetadata';
 
 function createObjectOrInputType(
   meta: Metadata
@@ -29,21 +25,25 @@ function createObjectOrInputType(
 export function typeFromObjectTypeClass(
   ClassWithObjectTypeMetadata: any
 ): GraphQLObjectType {
-  const meta = getObjectTypeMetadata(ClassWithObjectTypeMetadata);
+  const meta = classMetadataManager.getOwnMetadata(ClassWithObjectTypeMetadata);
 
-  if (!meta || !meta.getName()) {
+  if (!meta || !meta.name) {
     throw new Error(
       `"${ClassWithObjectTypeMetadata.name}" is not a valid ObjectType.`
     );
   }
 
-  if (meta.getType() !== GraphQLObjectType) {
+  if (meta.GraphQLType !== GraphQLObjectType) {
     throw new Error(
       `"${
         ClassWithObjectTypeMetadata.name
       }" is not a valid ObjectType ("InputType" given).`
     );
   }
+
+  console.log(meta);
+
+  throw new Error('done');
 
   return createObjectOrInputType(meta) as GraphQLObjectType;
 }

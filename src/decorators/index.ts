@@ -1,6 +1,6 @@
 export { ObjectType } from './objectType';
 export { InputType } from './inputType';
-export { Field } from './fields';
+export { Field } from './field';
 export { FieldResolver } from './fieldResolver';
 export { Query } from './query';
 export { Mutation } from './mutation';

@@ -1,57 +1,8 @@
-import { GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, GraphQLSchema, GraphQLType } from 'graphql';
 import * as path from 'path';
 import * as globby from 'globby';
-import { GraphQLDate, GraphQLTime, GraphQLDateTime } from 'graphql-iso-date';
-import {
-  getMutationObjectTypeMetadata,
-  getObjectTypeMetadata,
-  getQueryObjectTypeMetadata,
-  OBJECT_TYPE_KEY,
-  OBJECT_QUERY_TYPE_KEY,
-  OBJECT_MUTATION_TYPE_KEY,
-} from '../metadata';
-import {
-  typeFromObjectTypeClass,
-  typeFromInputTypeClass,
-  typeFromClassWithMutations,
-  typeFromClassWithQueries,
-} from './typeFromClass';
-
-function assertValidTarget(
-  target: any,
-  {
-    isObjectType,
-    isQuery,
-    isMutation,
-  }: { isObjectType: boolean; isQuery: boolean; isMutation: boolean }
-) {
-  // @Query and @Mutation within an @ObjectType must be static methods.
-  if (isObjectType && (isQuery || isMutation)) {
-    const queryMeta = getQueryObjectTypeMetadata(target);
-    const mutationMeta = getMutationObjectTypeMetadata(target);
-
-    const fields = Object.values({
-      ...(queryMeta ? queryMeta.getFields() : {}),
-      ...(mutationMeta ? mutationMeta.getFields() : {}),
-    });
-
-    const invalidFields = [];
-
-    fields.forEach(field => {
-      if (!field.isResolverStaticFunction()) {
-        invalidFields.push(field.getOpts().propertyOrMethodName);
-      }
-    });
-
-    if (invalidFields.length) {
-      throw new Error(
-        `Fields "${invalidFields.join(
-          '", "'
-        )}" must be static if they belong to an @ObjectType.`
-      );
-    }
-  }
-}
+import { factories } from '../mapping';
+import { ClassMetadata } from '../mapping/ClassMetadata';
 
 function isClass(target) {
   return (
@@ -59,36 +10,10 @@ function isClass(target) {
   );
 }
 
-function isPotentialTarget(
-  target
-): {
-  isObjectType: boolean;
-  isQuery: boolean;
-  isMutation: boolean;
-  isPotential: boolean;
-} {
-  const keys = Reflect.getOwnMetadataKeys(target);
-
-  const isObjectType = keys.includes(OBJECT_TYPE_KEY);
-  const isQuery = keys.includes(OBJECT_QUERY_TYPE_KEY);
-  const isMutation = keys.includes(OBJECT_MUTATION_TYPE_KEY);
-
-  let isPotential = true;
-
-  if (!isObjectType && !isQuery && !isMutation) {
-    isPotential = false;
-  }
-
-  return { isObjectType, isQuery, isMutation, isPotential };
-}
-
-export function buildSchema(
+function loadPotentialTargets(
   classesOrGlobs: any[] | any,
   config: { cwd: string } = { cwd: process.cwd() }
-): GraphQLSchema {
-  const queryObjects = [];
-  const mutationObjects = [];
-
+) {
   const potentialTargets = [];
   const globs = [];
 
@@ -122,47 +47,60 @@ export function buildSchema(
     });
   }
 
-  potentialTargets.forEach(target => {
-    const {
-      isObjectType,
-      isQuery,
-      isMutation,
-      isPotential,
-    } = isPotentialTarget(target);
+  return potentialTargets;
+}
 
-    // skip invalid target types
-    if (!isPotential) {
-      return;
-    }
+function createType(name: string, allMetadata): GraphQLObjectType {
+  if (!allMetadata.length) {
+    return;
+  }
 
-    // validate potentials
-    assertValidTarget(target, { isObjectType, isQuery, isMutation });
+  const fields = {};
 
-    const knownMetas = Reflect.getOwnMetadataKeys(target);
-
-    knownMetas.forEach(key => {
-      switch (key) {
-        case OBJECT_TYPE_KEY:
-          const meta = getObjectTypeMetadata(target);
-
-          if (meta.isInputType()) {
-            typeFromInputTypeClass(target);
-          } else {
-            typeFromObjectTypeClass(target);
-          }
-          break;
-        case OBJECT_QUERY_TYPE_KEY:
-          queryObjects.push(target);
-          break;
-        case OBJECT_MUTATION_TYPE_KEY:
-          mutationObjects.push(target);
-          break;
+  allMetadata.forEach(metadata => {
+    Object.keys(metadata.graphqlFields).forEach(fieldName => {
+      if (typeof fields[fieldName] !== 'undefined') {
+        throw new Error(`Field with name "${fieldName}" already exists.`);
       }
+
+      fields[fieldName] = metadata.graphqlFields[fieldName];
     });
   });
 
+  return new GraphQLObjectType({
+    name,
+    fields: () => fields,
+  });
+}
+
+export function buildSchema(
+  classesOrGlobs: any[] | any,
+  config: { cwd: string } = { cwd: process.cwd() }
+): GraphQLSchema {
+  const allQueryMetadata: ClassMetadata[] = [];
+  const allMutationMetadata: ClassMetadata[] = [];
+
+  const potentialTargets = loadPotentialTargets(classesOrGlobs, config);
+
+  potentialTargets.forEach(target => {
+    // process standard object types
+    factories.objectType.loadMetadataFor(target);
+
+    // process query metadata
+    const queryMetadata = factories.query.loadMetadataFor(target);
+    if (queryMetadata) {
+      allQueryMetadata.push(queryMetadata);
+    }
+
+    // process mutation metadata
+    const mutationMetadata = factories.mutation.loadMetadataFor(target);
+    if (mutationMetadata) {
+      allMutationMetadata.push(mutationMetadata);
+    }
+  });
+
   return new GraphQLSchema({
-    query: typeFromClassWithQueries(queryObjects),
-    mutation: typeFromClassWithMutations(mutationObjects),
+    query: createType('Query', allQueryMetadata),
+    mutation: createType('Mutation', allMutationMetadata),
   });
 }
