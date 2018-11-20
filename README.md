@@ -1,3 +1,5 @@
+## NO LONGER IN DEVELOPMENT: <a href="https://github.com/19majkel94/type-graphql">type-graphql</a> (boring name) beat me to the punch.
+
 <h1 align="center" style="border-bottom: none;">🎉🎊 graphql-party</h1>
 <h3 align="center">A <a href="https://www.typescriptlang.org/docs/handbook/decorators.html">@decorator</a> based <a href="http://graphql.org/graphql-js/">GraphQL.js</a> schema builder.</h3>
 <p align="center">
